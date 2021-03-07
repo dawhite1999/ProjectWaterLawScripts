@@ -6,9 +6,10 @@ using UnityEngine.UI;
 public class RoomBeam : MonoBehaviour
 {
     //references
-    [SerializeField] Transform heldObjectLoc;
-    [SerializeField] Transform switchedObjLoc;
-    [SerializeField] GameObject roomBeamOrigin;
+    public Transform heldObjectLoc;
+    public Transform switchedObjLoc;
+    public Camera roomBeamOrigin;
+    public Vector3 rayDestination;
 
     Vector3 tempShamblesLoc;
     GameObject heldObject;
@@ -17,10 +18,8 @@ public class RoomBeam : MonoBehaviour
     Player player;
 
     //variables
-    bool isUpdating = false;
-    [SerializeField] float launchForce;
-    public enum GUN_STATE { INACTIVE, ACTIVE, TURNINGOFF }
-    public GUN_STATE currentState = GUN_STATE.INACTIVE;
+    [SerializeField] float launchForce = 0;
+    bool isHolding = false;
     /////////////////////////////////////////////////////////////////ability variables
     bool radioOn = false;
     bool canRadio = true;
@@ -54,16 +53,14 @@ public class RoomBeam : MonoBehaviour
         {
             UpdateInput();
             //for Takt
-            CheckGunState();
+            CheckHoldState();
             Hold();
-            //for shambles
-            ContinuosRay();
-            //for ability cooldowns
-            RadioCheck();
-            GammaCheck();
-            CounterCheck();
-            InjectionCheck();
         }
+        //for ability cooldowns
+        RadioCheck();
+        GammaCheck();
+        CounterCheck();
+        InjectionCheck();
     }
 
     //Inputs
@@ -71,10 +68,10 @@ public class RoomBeam : MonoBehaviour
     {
         if (GetComponent<Player>().disableInput == false)
         {
-            if (Input.GetKeyDown(player.holdButton)) { Activate(); }
-            else if (Input.GetKeyUp(player.holdButton)) { Deactivate(); }
-            if (Input.GetKeyDown(player.taktButton) && currentState == GUN_STATE.ACTIVE) { Takt(); }
-            if(Input.GetKeyDown(player.shamblesButton)) { Shambles(potSwitchPartner); }
+            if (Input.GetKeyDown(player.holdButton)) { isHolding = true; }
+            else if (Input.GetKeyUp(player.holdButton)) { isHolding = false; LetGo(); }
+            if (Input.GetKeyDown(player.taktButton) && isHolding == true) { Takt(); }
+            if(Input.GetKeyDown(player.shamblesButton)) { Shambles(); }
             if (Input.GetKeyDown(player.injectionButton)) { StartCoroutine(InjectionShot()); }
             if (Input.GetKeyDown(player.radioButton)) { RadioKnife(true); }
             if (Input.GetKeyDown(player.gammaButton)) { StartCoroutine(GammaKnife()); }
@@ -82,106 +79,85 @@ public class RoomBeam : MonoBehaviour
         }
     }
 
-    void ContinuosRay()
-    {
-        Ray roomRay = new Ray(roomBeamOrigin.transform.position, roomBeamOrigin.transform.forward);
-        RaycastHit roomRayHit;
-        Debug.DrawRay(roomBeamOrigin.transform.position, roomBeamOrigin.transform.forward, Color.blue);
-
-        if (Physics.Raycast(roomRay, out roomRayHit))
-        {
-            if (roomRayHit.collider.GetComponent<InteractableObject>() != null)
-            {
-                if(roomRayHit.collider.GetComponent<RoomChecker>().inRoom == true)
-                potSwitchPartner = roomRayHit.collider.gameObject;
-            }
-            else
-                potSwitchPartner = null;
-        }
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////Moving things in Room////////////////////////////////////////////////////////////////////////////////////////
-    private void CheckGunState()
-    {
-        if (currentState == GUN_STATE.ACTIVE)
-            ShootRay(true);
-        else if (currentState == GUN_STATE.TURNINGOFF)
-            ShootRay(false);
-    }
-    private void Activate() { currentState = GUN_STATE.ACTIVE; }
-    private void Deactivate() { currentState = GUN_STATE.TURNINGOFF; }
-    void Hold()
-    {
-        if (heldObject != null)
-        {
-            if (isUpdating == true && heldObject.GetComponent<InteractableObject>().beingLaunched == false)
-            {
-                heldObject.transform.position = heldObjectLoc.transform.position;
-                heldObject.GetComponent<Rigidbody>().useGravity = false;
-                if (heldObject.transform.rotation != heldObjRotation)
-                    LetGo();
-            }
-        }
-    }
+    //moving things in room
     public void LetGo()
     {
         if (heldObject != null)
         {
             heldObject.GetComponent<Rigidbody>().useGravity = true;
-            isUpdating = false;
             heldObject = null;
+            isHolding = false;
         }
     }
-    void ShootRay(bool isActive)
+    void Hold()
     {
-        Ray roomRay = new Ray(roomBeamOrigin.transform.position, roomBeamOrigin.transform.forward);
-        RaycastHit roomRayHit;
-        Debug.DrawRay(roomBeamOrigin.transform.position, roomBeamOrigin.transform.forward, Color.red);
-
-        if (Physics.Raycast(roomRay, out roomRayHit) && isActive == true)
+        //Hold function is needed in Update because the ray in ShootHoldingRay is not always making contact with the held object.
+        if (heldObject != null)
         {
+            if (heldObject.GetComponent<InteractableObject>().beingLaunched == false)
+            {
+                heldObject.transform.position = heldObjectLoc.transform.position;
+                heldObject.GetComponent<Rigidbody>().useGravity = false;
+                heldObject.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
+                if (heldObject.transform.rotation != heldObjRotation)
+                    LetGo();
+            }
+        }
+    }
+    void CheckHoldState()
+    {
+        if(isHolding == true) { ShootHoldingRay(); }
+    }
+    void ShootHoldingRay()
+    {
+        Ray roomRay = roomBeamOrigin.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        RaycastHit roomRayHit;
+        Debug.DrawRay(roomRay.origin, roomRay.direction * 100, Color.red);
+
+        if (Physics.Raycast(roomRay, out roomRayHit))
+        {
+            rayDestination = roomRayHit.point;
             if (roomRayHit.collider.GetComponent<InteractableObject>() != null)
             {
                 if (roomRayHit.collider.GetComponent<InteractableObject>().beingLaunched == false && roomRayHit.collider.GetComponent<RoomChecker>().inRoom == true)
                 {
-                    isUpdating = true;
                     heldObject = roomRayHit.collider.gameObject;
                     heldObjRotation = heldObject.transform.rotation;
                 }
-                else if(roomRayHit.collider.GetComponent<RoomChecker>().inRoom == false)
+                else if (roomRayHit.collider.GetComponent<RoomChecker>().inRoom == false)
                 {
                     if (roomRayHit.collider.GetComponent<Rigidbody>() != null)
                         LetGo();
-                    currentState = GUN_STATE.INACTIVE;
                 }
             }
         }
-        else if (Physics.Raycast(roomRay, out roomRayHit) && isActive == false)
-        {
-            if (roomRayHit.collider.GetComponent<Rigidbody>() != null)
-                LetGo();
-            currentState = GUN_STATE.INACTIVE;
-        }
     }
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////Moving things in Room////////////////////////////////////////////////////////////////////////////////////////
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////Room Abilities//////////////////////////////////////////////////////////////////////////////////////////////////
-    void Shambles(GameObject itemToSwitch)
+    void Shambles()
     {
-        if(itemToSwitch != null)
+        Ray roomRay = roomBeamOrigin.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        RaycastHit roomRayHit;
+        Debug.DrawRay(roomRay.origin, roomRay.direction, Color.blue);
+        GameObject itemToSwitch;
+        if (Physics.Raycast(roomRay, out roomRayHit))
         {
-            tempShamblesLoc = new Vector3(itemToSwitch.transform.position.x, itemToSwitch.transform.position.y, itemToSwitch.transform.position.z);
-            itemToSwitch.transform.position = switchedObjLoc.position;
-            if(currentState == GUN_STATE.ACTIVE)
+            if (roomRayHit.collider.GetComponent<InteractableObject>() != null)
             {
-                LetGo();
-                currentState = GUN_STATE.INACTIVE;
+                if (roomRayHit.collider.GetComponent<RoomChecker>().inRoom == true)
+                {
+                    itemToSwitch = roomRayHit.collider.gameObject;
+                    tempShamblesLoc = new Vector3(itemToSwitch.transform.position.x, itemToSwitch.transform.position.y, itemToSwitch.transform.position.z);
+                    itemToSwitch.transform.position = switchedObjLoc.position;
+                    if (isHolding == true)
+                        LetGo();
+                    GetComponent<PlayerMovement>().enabled = false;
+                    GetComponent<CharacterController>().enabled = false;
+                    gameObject.transform.position = new Vector3(tempShamblesLoc.x, tempShamblesLoc.y + 3, tempShamblesLoc.z);
+                    GetComponent<PlayerMovement>().enabled = true;
+                    GetComponent<CharacterController>().enabled = true;
+                }
             }
-            GetComponent<PlayerMovement>().enabled = false;
-            GetComponent<CharacterController>().enabled = false;
-            gameObject.transform.position = new Vector3(tempShamblesLoc.x, tempShamblesLoc.y + 3, tempShamblesLoc.z);
-            GetComponent<PlayerMovement>().enabled = true;
-            GetComponent<CharacterController>().enabled = true;
         }
     }
     IEnumerator CounterShock()
@@ -199,14 +175,13 @@ public class RoomBeam : MonoBehaviour
             player.counterBackground.GetComponent<Image>().color = Color.white;
             counterUsed = true;
         }
-
     }
     void Takt()
     {
         if (heldObject != null)
         {
             heldObject.GetComponent<InteractableObject>().beingLaunched = true;
-            heldObject.GetComponent<Rigidbody>().velocity = transform.forward * launchForce;
+            heldObject.GetComponent<Rigidbody>().velocity = (rayDestination - roomBeamOrigin.transform.position) * launchForce;
             heldObject.GetComponent<InteractableObject>().InvokeRePickup();
             LetGo();
         }
@@ -215,9 +190,9 @@ public class RoomBeam : MonoBehaviour
     {
         if(injectionUsed == false)
         {
-            Ray roomRay = new Ray(roomBeamOrigin.transform.position, roomBeamOrigin.transform.forward);
+            Ray roomRay = roomBeamOrigin.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             RaycastHit roomRayHit;
-            Debug.DrawRay(roomBeamOrigin.transform.position, roomBeamOrigin.transform.forward, Color.green);
+            Debug.DrawRay(roomRay.origin, roomRay.direction, Color.green);
 
             player.injectionBackground.GetComponent<Image>().color = Color.yellow;
             yield return new WaitForSeconds(player.injectionStartUp);

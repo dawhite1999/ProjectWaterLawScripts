@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class Room : MonoBehaviour
 {
-    [SerializeField] GameObject roomHolder;
-    [SerializeField] GameObject room;
+    public GameObject roomHolder;
+    public GameObject room;
     [SerializeField] KeyCode RoomButton = KeyCode.Q;
-    [SerializeField] float growthRate;
-    [SerializeField] float damageThreshold;
-    [SerializeField] float damageTaken;
+    [SerializeField] float growthRate = 0;
+    [SerializeField] float damageThreshold = 0;
+    [SerializeField] float damageTaken = 0;
     public float roomTimeActiveMax;
-    public float roomTimeActiveCurr;
+    [HideInInspector] public float roomTimeActiveCurr;
     bool roomLocked = false;
     bool playOnce = false;
     Player player;
@@ -83,7 +83,6 @@ public class Room : MonoBehaviour
         room.transform.localScale = new Vector3(1, 1, 1);
         GetComponent<Player>().inRoom = false;
         GetComponent<RoomBeam>().LetGo();
-        GetComponent<RoomBeam>().currentState = RoomBeam.GUN_STATE.INACTIVE;
         foreach (GameObject item in FindObjectOfType<RoomHitBox>().objsInRoom)
         {
             item.GetComponent<RoomChecker>().inRoom = false;

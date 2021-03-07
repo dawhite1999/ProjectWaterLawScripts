@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AttackHitBox : MonoBehaviour
 {
-    [SerializeField] Player player;
+    public Player player;
     public bool gammaOn = false;
     public bool counterOn = false;
     public float oriEnemyDefense;
