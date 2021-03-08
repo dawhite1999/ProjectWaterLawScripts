@@ -9,14 +9,14 @@ public class RoomBeam : MonoBehaviour
     public Transform heldObjectLoc;
     public Transform switchedObjLoc;
     public Camera roomBeamOrigin;
-    public Vector3 rayDestination;
+    [HideInInspector] public Vector3 rayDestination;
 
-    Vector3 tempShamblesLoc;
-    GameObject heldObject;
-    GameObject potSwitchPartner;
-    Quaternion heldObjRotation;
+    [HideInInspector] public GameObject heldObject;
+    GameObject itemToSwitch1;
+    GameObject itemToSwitch2;
+    Vector3 tempItemsShamblesLoc;
     Player player;
-
+    HypeMan hypeMan;
     //variables
     [SerializeField] float launchForce = 0;
     bool isHolding = false;
@@ -36,25 +36,36 @@ public class RoomBeam : MonoBehaviour
     bool gammaUsed = false;
     bool injectionUsed = false;
     bool counterUsed = false;
+    bool initiatingShambles = false;
+    [SerializeField] float shamblesHoldTime = .5f;
+    float shamblesHTCurr = 0;
     /////////////////////////////////////////////////////////////////ability variables
 
     private void Start()
     {
+        //set variables and references
         player = GetComponent<Player>();
+        hypeMan = FindObjectOfType<HypeMan>();
         radioTimeCurr = radioTimeMax;
         radioCDCurr = radioCDMax;
         counterCDCurr = counterCDMax;
         gammaCDCurr = gammaCDMax;
         injectionCDCurr = injectionCDMax;
+        shamblesHTCurr = shamblesHoldTime;
+
     }
     private void Update()
     {
         if(player.inRoom == true)
         {
-            UpdateInput();
+            AbilityInput();
             //for Takt
             CheckHoldState();
             Hold();
+            //count down the shambles timer
+            ShamblesCheck();
+            //Check if using second shambles
+            ShamblesHold();
         }
         //for ability cooldowns
         RadioCheck();
@@ -64,14 +75,24 @@ public class RoomBeam : MonoBehaviour
     }
 
     //Inputs
-    private void UpdateInput()
+    private void AbilityInput()
     {
         if (GetComponent<Player>().disableInput == false)
         {
+            //moving things in room
             if (Input.GetKeyDown(player.holdButton)) { isHolding = true; }
             else if (Input.GetKeyUp(player.holdButton)) { isHolding = false; LetGo(); }
+
+            //checking for shambles
+            if(Input.GetKeyDown(player.shamblesButton)) { initiatingShambles = true;  }
+            else if (Input.GetKeyUp(player.shamblesButton) && shamblesHTCurr > 0) { Shambles(); }
+            else if(Input.GetKeyUp(player.shamblesButton) && shamblesHTCurr <= 0)
+            {
+                if (itemToSwitch1 != null && itemToSwitch2 != null) { SecondaryShambles(); }
+                else { RefreshShamblesVars(); }
+            }
+            //other abilities
             if (Input.GetKeyDown(player.taktButton) && isHolding == true) { Takt(); }
-            if(Input.GetKeyDown(player.shamblesButton)) { Shambles(); }
             if (Input.GetKeyDown(player.injectionButton)) { StartCoroutine(InjectionShot()); }
             if (Input.GetKeyDown(player.radioButton)) { RadioKnife(true); }
             if (Input.GetKeyDown(player.gammaButton)) { StartCoroutine(GammaKnife()); }
@@ -99,8 +120,6 @@ public class RoomBeam : MonoBehaviour
                 heldObject.transform.position = heldObjectLoc.transform.position;
                 heldObject.GetComponent<Rigidbody>().useGravity = false;
                 heldObject.GetComponent<Rigidbody>().velocity = new Vector3(0, 0, 0);
-                if (heldObject.transform.rotation != heldObjRotation)
-                    LetGo();
             }
         }
     }
@@ -119,11 +138,8 @@ public class RoomBeam : MonoBehaviour
             rayDestination = roomRayHit.point;
             if (roomRayHit.collider.GetComponent<InteractableObject>() != null)
             {
-                if (roomRayHit.collider.GetComponent<InteractableObject>().beingLaunched == false && roomRayHit.collider.GetComponent<RoomChecker>().inRoom == true)
-                {
+                if (roomRayHit.collider.GetComponent<InteractableObject>().beingLaunched == false && roomRayHit.collider.GetComponent<RoomChecker>().inRoom == true && heldObject == null)
                     heldObject = roomRayHit.collider.gameObject;
-                    heldObjRotation = heldObject.transform.rotation;
-                }
                 else if (roomRayHit.collider.GetComponent<RoomChecker>().inRoom == false)
                 {
                     if (roomRayHit.collider.GetComponent<Rigidbody>() != null)
@@ -140,12 +156,16 @@ public class RoomBeam : MonoBehaviour
         RaycastHit roomRayHit;
         Debug.DrawRay(roomRay.origin, roomRay.direction, Color.blue);
         GameObject itemToSwitch;
+        Vector3 tempShamblesLoc;
+        //reset shambles counter
+        RefreshShamblesVars();
         if (Physics.Raycast(roomRay, out roomRayHit))
         {
             if (roomRayHit.collider.GetComponent<InteractableObject>() != null)
             {
                 if (roomRayHit.collider.GetComponent<RoomChecker>().inRoom == true)
                 {
+                    hypeMan.PHT("Shambles!");
                     itemToSwitch = roomRayHit.collider.gameObject;
                     tempShamblesLoc = new Vector3(itemToSwitch.transform.position.x, itemToSwitch.transform.position.y, itemToSwitch.transform.position.z);
                     itemToSwitch.transform.position = switchedObjLoc.position;
@@ -160,6 +180,17 @@ public class RoomBeam : MonoBehaviour
             }
         }
     }
+    void RefreshShamblesVars()
+    {
+        if(itemToSwitch1 != null)
+            itemToSwitch1.GetComponent<Outline>().enabled = false;
+        if(itemToSwitch2 != null)
+            itemToSwitch2.GetComponent<Outline>().enabled = false;
+        itemToSwitch1 = null;
+        itemToSwitch2 = null;
+        shamblesHTCurr = shamblesHoldTime;
+        initiatingShambles = false;
+    }
     IEnumerator CounterShock()
     {
         if(counterUsed == false)
@@ -169,6 +200,7 @@ public class RoomBeam : MonoBehaviour
             yield return new WaitForSeconds(player.counterStartUp);
             player.swordHitBox.GetComponent<AttackHitBox>().counterOn = true;
             player.swordHitBox.SetActive(true);
+            hypeMan.PHT("Counter Shock!");
             yield return new WaitForSeconds(player.counterBoxActiveTime);
             player.swordHitBox.GetComponent<AttackHitBox>().counterOn = false;
             player.swordHitBox.SetActive(false);
@@ -181,6 +213,7 @@ public class RoomBeam : MonoBehaviour
         if (heldObject != null)
         {
             heldObject.GetComponent<InteractableObject>().beingLaunched = true;
+            hypeMan.PHT("Takt!");
             heldObject.GetComponent<Rigidbody>().velocity = (rayDestination - roomBeamOrigin.transform.position) * launchForce;
             heldObject.GetComponent<InteractableObject>().InvokeRePickup();
             LetGo();
@@ -196,6 +229,7 @@ public class RoomBeam : MonoBehaviour
 
             player.injectionBackground.GetComponent<Image>().color = Color.yellow;
             yield return new WaitForSeconds(player.injectionStartUp);
+            hypeMan.PHT("Injection Shot!");
             if (Physics.Raycast(roomRay, out roomRayHit))
             {
                 if (roomRayHit.collider.GetComponent<Enemy>() != null)
@@ -216,6 +250,7 @@ public class RoomBeam : MonoBehaviour
             radioOn = true;
             player.radioBackground.GetComponent<Image>().color = Color.yellow;
             player.strength = player.strength + player.radioBonus;
+            hypeMan.PHT("Radio Knife!");
         }
         else
         {
@@ -236,12 +271,50 @@ public class RoomBeam : MonoBehaviour
             yield return new WaitForSeconds(player.attackStartUp);
             player.swordHitBox.GetComponent<AttackHitBox>().gammaOn = true;
             player.swordHitBox.SetActive(true);
+            hypeMan.PHT("Gamma Knife!");
             yield return new WaitForSeconds(player.hitBoxActiveTime);
             player.swordHitBox.GetComponent<AttackHitBox>().gammaOn = false;
             player.swordHitBox.SetActive(false);
             player.gammaBackground.GetComponent<Image>().color = Color.white;
             gammaUsed = true;
         }
+    }
+    void ShamblesHold()
+    {
+        Ray roomRay = roomBeamOrigin.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        RaycastHit roomRayHit;
+        Debug.DrawRay(roomRay.origin, roomRay.direction, Color.blue);
+        if (Physics.Raycast(roomRay, out roomRayHit) && shamblesHTCurr <= 0)
+        {
+            if (roomRayHit.collider.GetComponent<InteractableObject>() != null)
+            {
+                if (roomRayHit.collider.GetComponent<RoomChecker>().inRoom == true)
+                {
+                    //if nothing is stored in gameobject 1, store the first item
+                    if(itemToSwitch1 == null)
+                    {
+                        itemToSwitch1 = roomRayHit.collider.gameObject;
+                        tempItemsShamblesLoc = new Vector3(itemToSwitch1.transform.position.x, itemToSwitch1.transform.position.y, itemToSwitch1.transform.position.z);
+                        itemToSwitch1.GetComponent<Outline>().enabled = true;
+                    }
+                    else
+                    {
+                        itemToSwitch2 = roomRayHit.collider.gameObject;
+                        itemToSwitch2.GetComponent<Outline>().enabled = true;
+                    }
+                }
+            }
+        }
+    }
+    void SecondaryShambles()
+    {
+        //swap Item posistions
+        itemToSwitch1.transform.position = new Vector3(itemToSwitch2.transform.position.x, itemToSwitch2.transform.position.y + 2, itemToSwitch2.transform.position.z);
+        itemToSwitch2.transform.position = tempItemsShamblesLoc;
+        hypeMan.PHT("Shambles!");
+        if (isHolding == true)
+            LetGo();
+        RefreshShamblesVars();
     }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////Room Abilities//////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -307,6 +380,15 @@ public class RoomBeam : MonoBehaviour
                 counterUsed = false;
                 player.counterBackground.GetComponentInChildren<Text>().text = "Counter Shock";
             }
+        }
+    }
+    void ShamblesCheck()
+    {
+        if(initiatingShambles == true)
+        {
+            shamblesHTCurr -= Time.deltaTime;
+            if (shamblesHTCurr <= 0)
+                initiatingShambles = false;
         }
     }
     ///////////////////////////////////////////////////////////////////////////////////////////////////////Ability Checks//////////////////////////////////////////////////////////////////////////////////////////////////

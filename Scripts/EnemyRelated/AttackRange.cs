@@ -14,7 +14,7 @@ public class AttackRange : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<Player>() != null)
+        if (other.GetComponent<Player>() != null && enemy.currentState != Enemy.EnemyStates.Stunned)
         {
             enemy.SetState(Enemy.EnemyStates.Attacking);
             enemyNav.AdjustSpeed(0);
@@ -22,7 +22,7 @@ public class AttackRange : MonoBehaviour
     }
     private void OnTriggerExit(Collider other)
     {
-        if (other.GetComponent<Player>() != null)
+        if (other.GetComponent<Player>() != null && enemy.currentState != Enemy.EnemyStates.Stunned)
         {
             enemy.SetState(Enemy.EnemyStates.Pursuit);
             enemyNav.AdjustSpeed(enemy.walkSpeed);

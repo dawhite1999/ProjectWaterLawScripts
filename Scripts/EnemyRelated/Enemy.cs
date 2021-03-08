@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 public class Enemy : MonoBehaviour
 {
     public float maxHealth;
@@ -8,6 +9,7 @@ public class Enemy : MonoBehaviour
     public float walkSpeed;
     public float strength;
     public float attackRate;
+    public float stunDuration;
     [HideInInspector] public float currentHealth;
     AudioMan audioMan;
     Animator animator;
@@ -39,6 +41,9 @@ public class Enemy : MonoBehaviour
         EnemyStateList.Add(EnemyStates.Pursuit);
         EnemyStateList.Add(EnemyStates.Attacking);
         EnemyStateList.Add(EnemyStates.Stunned);
+        GetComponent<Outline>().OutlineColor = new Color(0, 1, 0.15f);
+        GetComponent<Outline>().OutlineWidth = 10;
+        GetComponent<Outline>().enabled = false;
     }
     protected virtual void Update(){ MakeDecision(); }
 
@@ -51,6 +56,45 @@ public class Enemy : MonoBehaviour
         {
             currentHealth = 0;
         }
-        Debug.Log("Enenmy health " + currentHealth);
+        Debug.Log("Damage taken " + damageTaken * defense);
+    }
+    IEnumerator Stun()
+    {
+        SetState(EnemyStates.Stunned);
+        GetComponent<EnemyNav>().AdjustSpeed(0);
+        gameObject.AddComponent<InteractableObject>();
+        GetComponent<NavMeshAgent>().enabled = false;
+        GetComponent<Rigidbody>().isKinematic = false;
+        yield return new WaitForSeconds(stunDuration);
+        if(FindObjectOfType<RoomBeam>().heldObject == gameObject)
+            FindObjectOfType<RoomBeam>().LetGo();
+        GetComponent<Rigidbody>().isKinematic = true;
+        GetComponent<NavMeshAgent>().enabled = true;
+        Destroy(GetComponent<InteractableObject>());
+        GetComponent<EnemyNav>().AdjustSpeed(walkSpeed);
+        SetState(EnemyStates.Pursuit);
+    }
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.GetComponent<InteractableObject>() != null)
+        {
+            if(collision.gameObject.GetComponent<InteractableObject>().beingLaunched == true)
+            {
+                RecieveDamage(TaktDamageCalc(collision.gameObject.GetComponent<Rigidbody>()));
+                if (currentHealth > 0)
+                    StartCoroutine(Stun());
+            }
+        }
+        if(currentState == EnemyStates.Stunned)
+        {
+            if(GetComponent<InteractableObject>().beingLaunched == true)
+                RecieveDamage(TaktDamageCalc(gameObject.GetComponent<Rigidbody>()));
+        }
+    }
+    float TaktDamageCalc(Rigidbody incomingObj)
+    {
+        float netDamage = 5;
+        netDamage *= incomingObj.mass;
+        return netDamage;
     }
 }

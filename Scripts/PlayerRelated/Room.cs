@@ -15,10 +15,12 @@ public class Room : MonoBehaviour
     bool roomLocked = false;
     bool playOnce = false;
     Player player;
+    HypeMan hypeMan;
     // Start is called before the first frame update
     void Start()
     {
         player = GetComponent<Player>();
+        hypeMan = FindObjectOfType<HypeMan>();
         room.SetActive(false);
         roomTimeActiveCurr = roomTimeActiveMax;
     }
@@ -33,6 +35,7 @@ public class Room : MonoBehaviour
             if (room.activeSelf == false)
             {
                 room.SetActive(true);
+                hypeMan.PHT("Room");
                 return;
             }
             else
