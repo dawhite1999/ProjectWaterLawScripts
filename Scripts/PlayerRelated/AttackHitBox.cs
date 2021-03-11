@@ -12,6 +12,8 @@ public class AttackHitBox : MonoBehaviour
     {
         if (other.GetComponent<Enemy>() != null)
         {
+            transform.GetChild(0).gameObject.SetActive(true);
+            //ignore enemy defense when using gamma knife
             if(gammaOn == true)
             {
                 oriEnemyDefense = other.GetComponent<Enemy>().defense;

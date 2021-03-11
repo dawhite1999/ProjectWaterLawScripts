@@ -10,6 +10,7 @@ public class Enemy : MonoBehaviour
     public float strength;
     public float attackRate;
     public float stunDuration;
+    [SerializeField] float koAnimTime = 0;
     [HideInInspector] public float currentHealth;
     AudioMan audioMan;
     Animator animator;
@@ -30,6 +31,7 @@ public class Enemy : MonoBehaviour
         Pursuit,
         Stunned
     }
+    //called to set a new state
     public void SetState(EnemyStates newState) { currentState = newState; }
     protected virtual void Start()
     {
@@ -45,9 +47,10 @@ public class Enemy : MonoBehaviour
         GetComponent<Outline>().OutlineWidth = 10;
         GetComponent<Outline>().enabled = false;
     }
+    //make decision is overwritten in derivitive classes
     protected virtual void Update(){ MakeDecision(); }
-
     protected virtual void MakeDecision() { }
+
     public void RecieveDamage(float damageTaken)
     {
         damageTaken *= defense;
@@ -55,9 +58,11 @@ public class Enemy : MonoBehaviour
         if (currentHealth <= 0)
         {
             currentHealth = 0;
+            StartCoroutine(Defeat());
         }
         Debug.Log("Damage taken " + damageTaken * defense);
     }
+    //called when enemy is hit with a projectile sent by the player, this will disable movement and make enemy interactable
     IEnumerator Stun()
     {
         SetState(EnemyStates.Stunned);
@@ -74,6 +79,7 @@ public class Enemy : MonoBehaviour
         GetComponent<EnemyNav>().AdjustSpeed(walkSpeed);
         SetState(EnemyStates.Pursuit);
     }
+    //this is called to stun the enemy, or take damage when enemy is thrown
     private void OnCollisionEnter(Collision collision)
     {
         if(collision.gameObject.GetComponent<InteractableObject>() != null)
@@ -91,10 +97,19 @@ public class Enemy : MonoBehaviour
                 RecieveDamage(TaktDamageCalc(gameObject.GetComponent<Rigidbody>()));
         }
     }
+    //calculates the damage dealt when takt is used
     float TaktDamageCalc(Rigidbody incomingObj)
     {
         float netDamage = 5;
         netDamage *= incomingObj.mass;
         return netDamage;
+    }
+    IEnumerator Defeat()
+    {
+        yield return new WaitForSeconds(koAnimTime);
+        GetComponent<RoomChecker>().inRoom = false;
+        if (FindObjectOfType<RoomHitBox>() != null)
+            FindObjectOfType<RoomHitBox>().objsInRoom.Remove(gameObject);
+        Destroy(gameObject);
     }
 }

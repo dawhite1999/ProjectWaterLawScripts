@@ -28,6 +28,7 @@ public class Room : MonoBehaviour
     // Update is called once per frame
     void Update() { InputCheck(); RoomCountDown(); }
 
+    //has the inputs for turning on and off the room
     void InputCheck()
     {
         if(Input.GetKeyDown(RoomButton))
@@ -36,12 +37,15 @@ public class Room : MonoBehaviour
             {
                 room.SetActive(true);
                 hypeMan.PHT("Room");
+                player.animator.SetBool("roomExpanding", true);
+                player.UseStamina();
                 return;
             }
             else
             {
                 CancelRoom();
                 room.SetActive(true);
+                player.UseStamina();
             }
         }
         if (Input.GetKey(RoomButton))
@@ -49,6 +53,7 @@ public class Room : MonoBehaviour
         if (Input.GetKeyUp(RoomButton))
             SetLockedRoom();
     }
+    //called to put a time limit on how long a room is active
     void RoomCountDown()
     {
         if (roomLocked == true)
@@ -63,26 +68,36 @@ public class Room : MonoBehaviour
                 CancelRoom();
         }
     }
+    //grows the room
     void ExpandRoom()
     {
-        room.transform.localScale += new Vector3(growthRate, growthRate, growthRate);
-        roomHolder.transform.position = gameObject.transform.position;
-        if(room.transform.localScale.x > damageThreshold * .8f && playOnce == false)
+        if(roomLocked == false)
         {
-            playOnce = true;
-            room.GetComponent<Animator>().Play("ChangeColor");
+            room.transform.localScale += new Vector3(growthRate, growthRate, growthRate);
+            roomHolder.transform.position = gameObject.transform.position;
+            if (room.transform.localScale.x > damageThreshold * .8f && playOnce == false)
+            {
+                playOnce = true;
+                room.GetComponent<Animator>().Play("ChangeColor");
+            }
+            if (room.transform.localScale.x > damageThreshold)
+                player.RecieveDamage(damageTaken);
         }
-        if (room.transform.localScale.x > damageThreshold)
-            player.RecieveDamage(damageTaken);
     }
-    void SetLockedRoom()
+    //called to stop the room from growing
+    public void SetLockedRoom()
     {
+        if(roomLocked == false)
+            room.GetComponent<Animator>().Play("Stable");
         roomLocked = true;
         playOnce = false;
-        room.GetComponent<Animator>().Play("Stable");
+        player.animator.SetBool("roomExpanding", false);
     }
+    //turns the room off
     public void CancelRoom()
     {
+        player.animator.SetBool("roomExpanding", false);
+        player.animator.SetBool("isHolding", false);
         room.transform.localScale = new Vector3(1, 1, 1);
         GetComponent<Player>().inRoom = false;
         GetComponent<RoomBeam>().LetGo();
