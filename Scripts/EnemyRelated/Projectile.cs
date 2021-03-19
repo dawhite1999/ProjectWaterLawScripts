@@ -13,6 +13,8 @@ public class Projectile : MonoBehaviour
             StartCoroutine(Explosion());
         if (other.GetComponent<Player>() != null)
             other.GetComponent<Player>().RecieveDamage(damage);
+        if (other.GetComponent<Enemy>() != null)
+            other.GetComponent<Enemy>().RecieveDamage(damage);
     }
     IEnumerator Explosion()
     {

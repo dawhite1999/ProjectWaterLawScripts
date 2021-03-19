@@ -7,8 +7,8 @@ public class Room : MonoBehaviour
     public GameObject roomHolder;
     public GameObject room;
     [SerializeField] KeyCode RoomButton = KeyCode.Q;
-    [SerializeField] float growthRate = 0;
-    [SerializeField] float damageThreshold = 0;
+    public float growthRate = 0;
+    public float damageThreshold = 0;
     [SerializeField] float damageTaken = 0;
     public float roomTimeActiveMax;
     [HideInInspector] public float roomTimeActiveCurr;

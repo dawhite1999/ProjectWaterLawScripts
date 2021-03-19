@@ -10,10 +10,15 @@ public class Enemy : MonoBehaviour
     public float strength;
     public float attackRate;
     public float stunDuration;
+    [SerializeField] protected float attackStartup;
+    public GameObject hitParticles;
+    public GameObject explodeParticles;
+    public GameObject sparkParticles;
+    public Transform damagePopupPrefab;
     [SerializeField] float koAnimTime = 0;
     [HideInInspector] public float currentHealth;
     AudioMan audioMan;
-    Animator animator;
+    public Animator animator;
     Player player;
     [HideInInspector] public float attackTimeCounter;
     [HideInInspector] public List<EnemyStates> EnemyStateList = new List<EnemyStates>();
@@ -23,13 +28,8 @@ public class Enemy : MonoBehaviour
     {
         Attacking,
         Pursuit,
-        Stunned
-    }
-    public enum AnimStates
-    {
-        Attacking,
-        Pursuit,
-        Stunned
+        Stunned,
+        Exploding
     }
     //called to set a new state
     public void SetState(EnemyStates newState) { currentState = newState; }
@@ -43,6 +43,7 @@ public class Enemy : MonoBehaviour
         EnemyStateList.Add(EnemyStates.Pursuit);
         EnemyStateList.Add(EnemyStates.Attacking);
         EnemyStateList.Add(EnemyStates.Stunned);
+        EnemyStateList.Add(EnemyStates.Exploding);
         GetComponent<Outline>().OutlineColor = new Color(0, 1, 0.15f);
         GetComponent<Outline>().OutlineWidth = 10;
         GetComponent<Outline>().enabled = false;
@@ -53,25 +54,35 @@ public class Enemy : MonoBehaviour
 
     public void RecieveDamage(float damageTaken)
     {
-        damageTaken *= defense;
-        currentHealth = Mathf.RoundToInt(currentHealth - damageTaken);
-        if (currentHealth <= 0)
+        if(currentState != EnemyStates.Exploding)
         {
-            currentHealth = 0;
-            StartCoroutine(Defeat());
+            damageTaken *= defense;
+            currentHealth = Mathf.RoundToInt(currentHealth - damageTaken);
+            Transform damagePopupTransform = Instantiate(damagePopupPrefab, gameObject.transform.position, Quaternion.identity);
+            DamagePopup damagePopup = damagePopupTransform.GetComponent<DamagePopup>();
+            damagePopup.SetDamage(damageTaken);
+            if (currentHealth <= 0)
+            {
+                currentHealth = 0;  
+                StartCoroutine(Defeat());
+            }
         }
-        Debug.Log("Damage taken " + damageTaken * defense);
     }
     //called when enemy is hit with a projectile sent by the player, this will disable movement and make enemy interactable
     IEnumerator Stun()
     {
         SetState(EnemyStates.Stunned);
+        animator.SetBool("isStunned", true);
+        sparkParticles.SetActive(true);
         GetComponent<EnemyNav>().AdjustSpeed(0);
         gameObject.AddComponent<InteractableObject>();
         GetComponent<NavMeshAgent>().enabled = false;
         GetComponent<Rigidbody>().isKinematic = false;
         yield return new WaitForSeconds(stunDuration);
-        if(FindObjectOfType<RoomBeam>().heldObject == gameObject)
+
+        sparkParticles.SetActive(false);
+        animator.SetBool("isStunned", false);
+        if (FindObjectOfType<RoomBeam>().heldObject == gameObject)
             FindObjectOfType<RoomBeam>().LetGo();
         GetComponent<Rigidbody>().isKinematic = true;
         GetComponent<NavMeshAgent>().enabled = true;
@@ -82,7 +93,7 @@ public class Enemy : MonoBehaviour
     //this is called to stun the enemy, or take damage when enemy is thrown
     private void OnCollisionEnter(Collision collision)
     {
-        if(collision.gameObject.GetComponent<InteractableObject>() != null)
+        if(collision.gameObject.GetComponent<InteractableObject>() != null && currentState != EnemyStates.Exploding)
         {
             if(collision.gameObject.GetComponent<InteractableObject>().beingLaunched == true)
             {
@@ -106,10 +117,15 @@ public class Enemy : MonoBehaviour
     }
     IEnumerator Defeat()
     {
+        SetState(EnemyStates.Exploding);
+        GetComponent<EnemyNav>().AdjustSpeed(0);
+        animator.SetBool("isExploded", true);
         yield return new WaitForSeconds(koAnimTime);
+        explodeParticles.SetActive(true);
         GetComponent<RoomChecker>().inRoom = false;
         if (FindObjectOfType<RoomHitBox>() != null)
             FindObjectOfType<RoomHitBox>().objsInRoom.Remove(gameObject);
+        yield return new WaitForSeconds(.4f);
         Destroy(gameObject);
     }
 }

@@ -10,7 +10,6 @@ public class RoomBeam : MonoBehaviour
     public Transform switchedObjLoc;
     public Camera roomBeamOrigin;
     [HideInInspector] public Vector3 rayDestination;
-
     [HideInInspector] public GameObject heldObject;
     GameObject itemToSwitch1;
     GameObject itemToSwitch2;
@@ -21,6 +20,7 @@ public class RoomBeam : MonoBehaviour
     //variables
     [SerializeField] float launchForce = 0;
     bool isHolding = false;
+    bool canHold = true;
     /////////////////////////////////////////////////////////////////ability variables
     bool radioOn = false;
     bool canRadio = true;
@@ -82,8 +82,8 @@ public class RoomBeam : MonoBehaviour
         if (GetComponent<Player>().disableInput == false)
         {
             //moving things in room
-            if (Input.GetKeyDown(player.holdButton)) { isHolding = true; player.animator.SetBool("isHolding", true); }
-            else if (Input.GetKeyUp(player.holdButton)) { isHolding = false; LetGo(); player.animator.SetBool("isHolding", false); }
+            if (Input.GetKeyDown(player.holdButton)) { isHolding = true; player.animator.SetBool("isHolding", true); canHold = CanHoldCheck(); }
+            else if (Input.GetKeyUp(player.holdButton)) { isHolding = false; LetGo(); player.animator.SetBool("isHolding", false); canHold = CanHoldCheck(); }
 
             //checking for shambles
             if(Input.GetKeyDown(player.shamblesButton)) { initiatingShambles = true;  }
@@ -134,14 +134,13 @@ public class RoomBeam : MonoBehaviour
     {
         Ray roomRay = roomBeamOrigin.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit roomRayHit;
-        Debug.DrawRay(roomRay.origin, roomRay.direction * 100, Color.red);
 
         if (Physics.Raycast(roomRay, out roomRayHit))
         {
             rayDestination = roomRayHit.point;
             if (roomRayHit.collider.GetComponent<InteractableObject>() != null)
             {
-                if (roomRayHit.collider.GetComponent<InteractableObject>().beingLaunched == false && roomRayHit.collider.GetComponent<RoomChecker>().inRoom == true && heldObject == null)
+                if (roomRayHit.collider.GetComponent<InteractableObject>().beingLaunched == false && roomRayHit.collider.GetComponent<RoomChecker>().inRoom == true && heldObject == null && canHold == true)
                     heldObject = roomRayHit.collider.gameObject;
                 else if (roomRayHit.collider.GetComponent<RoomChecker>().inRoom == false)
                 {
@@ -152,13 +151,27 @@ public class RoomBeam : MonoBehaviour
         }
     }
 
+    bool CanHoldCheck()
+    {
+        Ray roomRay = new Ray(heldObjectLoc.position, GetComponentInChildren<Camera>().gameObject.transform.position - heldObjectLoc.position);
+        RaycastHit roomRayHit;
+        if(Physics.Raycast(roomRay, out roomRayHit))
+        {
+            if(roomRayHit.collider.tag == "ImpassableOBJ")
+                return false;
+            else
+                return true;
+        }   
+        else
+            return false;
+    }
+
     ///////////////////////////////////////////////////////////////////////////////////////////////////////Room Abilities//////////////////////////////////////////////////////////////////////////////////////////////////
     //shoots a ray, if the ray hits an interactable obj, switch places
     void Shambles()
     {
         Ray roomRay = roomBeamOrigin.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit roomRayHit;
-        Debug.DrawRay(roomRay.origin, roomRay.direction, Color.blue);
         GameObject itemToSwitch;
         Vector3 tempShamblesLoc;
         //reset shambles counter
@@ -205,7 +218,7 @@ public class RoomBeam : MonoBehaviour
         {
             room.SetLockedRoom();
             player.animator.SetBool("isCounter", true);
-            player.counterDamage = ((player.maxHealth - player.currentHealth) / 100) + 1;
+            player.counterDamage = (player.maxHealth - player.currentHealth) / 10  * player.counterMultiplier;
             player.counterBackground.GetComponent<Image>().color = Color.yellow;
             player.sword.GetComponentInChildren<TrailRenderer>().emitting = true;
             yield return new WaitForSeconds(player.counterStartUp);
@@ -243,7 +256,7 @@ public class RoomBeam : MonoBehaviour
             room.SetLockedRoom();
             Ray roomRay = roomBeamOrigin.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             RaycastHit roomRayHit;
-            Debug.DrawRay(roomRay.origin, roomRay.direction, Color.green);
+
             player.animator.SetBool("isInjection", true);
             player.injectionBackground.GetComponent<Image>().color = Color.yellow;
             yield return new WaitForSeconds(player.injectionStartUp);
@@ -255,7 +268,13 @@ public class RoomBeam : MonoBehaviour
                 if (roomRayHit.collider.GetComponent<Enemy>() != null)
                 {
                     if (roomRayHit.collider.GetComponent<RoomChecker>().inRoom == true)
+                    {
+                        roomRayHit.collider.GetComponent<Enemy>().hitParticles.SetActive(true);
                         roomRayHit.collider.GetComponent<Enemy>().RecieveDamage(player.strength + player.injectionShotBonus);
+                    }
+                    yield return new WaitForSeconds(.05f);
+                    if(roomRayHit.collider.GetComponent<Enemy>() != null)
+                        roomRayHit.collider.GetComponent<Enemy>().hitParticles.SetActive(false);
                 }
             }
             yield return new WaitForSeconds(.1f);
@@ -321,7 +340,7 @@ public class RoomBeam : MonoBehaviour
     {
         Ray roomRay = roomBeamOrigin.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit roomRayHit;
-        Debug.DrawRay(roomRay.origin, roomRay.direction, Color.blue);
+
         if (Physics.Raycast(roomRay, out roomRayHit) && shamblesHTCurr <= 0)
         {
             if (roomRayHit.collider.GetComponent<InteractableObject>() != null)

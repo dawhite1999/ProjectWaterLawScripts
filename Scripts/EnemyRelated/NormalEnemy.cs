@@ -12,12 +12,14 @@ public class NormalEnemy : Enemy
         base.Start();
         attackHitBox.SetActive(false);
     }
-
     public IEnumerator Attack()
     {
+        animator.SetBool("isAttacking", true);
+        yield return new WaitForSeconds(attackStartup);
         attackHitBox.SetActive(true);
         yield return new WaitForSeconds(hitBoxActiveTime);
         attackHitBox.SetActive(false);
+        animator.SetBool("isAttacking", false);
     }
     protected override void MakeDecision()
     {

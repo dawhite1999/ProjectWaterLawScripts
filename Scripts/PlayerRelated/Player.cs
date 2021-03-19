@@ -12,17 +12,16 @@ public class Player : MonoBehaviour
     public float maxStamina;
     [HideInInspector] public float currentStamina;
     [HideInInspector] public float currentHealth;
-    [HideInInspector] public bool disableInput = false;
-    [HideInInspector] public bool inRoom = false;
     public float strength = 0;
-    public float hitBoxActiveTime = 0.3f;
-    public float counterBoxActiveTime = 0.3f;
-    public float injectionStartUp;
-    public float counterStartUp;
-    public float attackStartUp;
+    [HideInInspector] public float hitBoxActiveTime = 0.3f;
+    [HideInInspector] public float counterBoxActiveTime = 0.3f;
+    [HideInInspector] public float injectionStartUp;
+    [HideInInspector] public float counterStartUp;
+    [HideInInspector] public float attackStartUp;
     public float injectionShotBonus = 0;
     public float radioBonus = 0;
     public float gammaBonus = 0;
+    public float counterMultiplier = 1.5f;
     [SerializeField] float staminaRecoveryRate = 0;
     [HideInInspector] public float counterDamage = 0;
     [Header("References")]
@@ -37,6 +36,7 @@ public class Player : MonoBehaviour
     public GameObject gammaBackground;
     public GameObject injectionBackground;
     public GameObject counterBackground;
+    public GameObject saveScreen;
     [Header("KeyCodes")]
     [SerializeField] KeyCode attackButton = KeyCode.Q;
     public KeyCode holdButton = KeyCode.Mouse1;
@@ -49,6 +49,12 @@ public class Player : MonoBehaviour
     //other variables
     bool attackRight = true;
     Color staminaColor;
+    [HideInInspector] public bool disableInput = false;
+    [HideInInspector] public bool inRoom = false;
+    bool isDead = false;
+    [HideInInspector] public bool canSave = false;
+    bool saveOn = false;
+
     private void Start()
     {
         currentHealth = maxHealth;
@@ -65,10 +71,43 @@ public class Player : MonoBehaviour
         {
             item.enabled = false;
         }
+        InitiateStats();
+    }
+    //Gets the levels from static man and changes the stats according to the levels
+    void InitiateStats()
+    {
+        StatLvlHolder statHolder = GetComponent<StatLvlHolder>();
+        UpgradeMan upgradeMan = FindObjectOfType<UpgradeMan>();
+        //get the levels
+        statHolder.gammaLevel = StaticMan.gammaLvl;
+        statHolder.radioLevel = StaticMan.radioLvl;
+        statHolder.counterLevel = StaticMan.counterLvl;
+        statHolder.injectionLevel = StaticMan.injectionLvl;
+        statHolder.roomLevel = StaticMan.roomLvl;
+        statHolder.hPLevel = StaticMan.hpLvl;
+        statHolder.staminaLevel = StaticMan.staminaLvl;
+        statHolder.strengthLevel = StaticMan.strengthLvl;
+        statHolder.skillPoints = StaticMan.skillPoints;
+
+        //sets the stats according to the level
+        upgradeMan.InitializeUpgrades();
+        upgradeMan.ChangeCTRStats();
+        upgradeMan.ChangeGMAStats();
+        upgradeMan.ChangeHPStats();
+        upgradeMan.ChangeINJStats();
+        upgradeMan.ChangeRDOStats();
+        upgradeMan.ChangeRMStats();
+        upgradeMan.ChangeSTMStats();
+        upgradeMan.ChangeSTRStats();
+        GameObject.Find("SaveScreen").SetActive(false);
     }
     private void Update()
     {
-        if (Input.GetKeyDown(attackButton)) { StartCoroutine(SwordSwing()); }
+        if (disableInput == false)
+        {
+            if (Input.GetKeyDown(attackButton)) { StartCoroutine(SwordSwing()); }
+            if (Input.GetKeyDown(KeyCode.Mouse1) && canSave == true) { TurnOnSave(); }
+        }
     }
     //called where ever the player takes dameage
     public void RecieveDamage(float damageTaken)
@@ -79,6 +118,8 @@ public class Player : MonoBehaviour
         {
             currentHealth = 0;
             healthBar.value = currentHealth;
+            if(isDead == false)
+                StartCoroutine(Death());
         }
     }
     //called when activating room, this will drain stamina, and if there is no more stamina, drain 10% of maxhealth
@@ -120,11 +161,11 @@ public class Player : MonoBehaviour
     //called when the player hits the attack button, this will turn the attack hit box on while playing an animation
     IEnumerator SwordSwing()
     {
+        attackRight = !attackRight;
         if (swordHitBox.activeSelf == true)
             yield break;
         if(attackRight == true) { animator.SetInteger("attackType", 1); }
         else { animator.SetInteger("attackType", 2); }
-        attackRight = !attackRight;
         sword.GetComponentInChildren<TrailRenderer>().emitting = true;
         yield return new WaitForSeconds(attackStartUp);
         animator.SetInteger("attackType", 0);
@@ -134,5 +175,34 @@ public class Player : MonoBehaviour
         sword.GetComponentInChildren<TrailRenderer>().emitting = false;
         if (swordHitBox.transform.GetChild(0).gameObject.activeSelf == true)
             swordHitBox.transform.GetChild(0).gameObject.SetActive(false);
+    }
+    //called when hp hits 0
+    IEnumerator Death()
+    {
+        disableInput = true;
+        isDead = true;
+        SceneMan sceneMan = FindObjectOfType<SceneMan>();
+        sceneMan.PlayDeathFade();
+        yield return new WaitForSeconds(5);
+        sceneMan.LoadMainMenu();
+    }
+    //called when you right click inside a save station
+    void TurnOnSave()
+    {
+        saveOn = !saveOn;
+        if (saveOn == true)
+        {
+            saveScreen.SetActive(true);
+            FindObjectOfType<SaveStation>().openText.gameObject.SetActive(false);
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        else
+        {
+            saveScreen.SetActive(false);
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+
     }
 }

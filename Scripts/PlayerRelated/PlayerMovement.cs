@@ -5,12 +5,15 @@ public class PlayerMovement : MonoBehaviour
 {
     //references
     public CharacterController controller;
+    //variables
+    public float speed = 0;
+    public float currSpeed = 0;
+    public bool isSprinting = false;
+    public bool isGrounded;
+    //used for sprinting and jumping (see groundcheck script)
+    public bool isGrounded2;
     public Transform groundCheck;
     public LayerMask groundMask;
-    //variables
-    [SerializeField] bool isGrounded;
-    [SerializeField] float speed = 0;
-    float currSpeed = 0;
     [SerializeField] float runSpeed = 0;
     [SerializeField] float jumpHeight = 0;
     [SerializeField] float gravity = -9.81f;
@@ -37,8 +40,13 @@ public class PlayerMovement : MonoBehaviour
             controller.Move(velocity * Time.deltaTime);
 
             //Running
-            if (Input.GetKey(KeyCode.W) && Input.GetKey(KeyCode.LeftShift) && isGrounded == true ){ currSpeed = runSpeed; }
-            if (Input.GetKeyUp(KeyCode.LeftShift) && isGrounded == true) { currSpeed = speed; }
+            if (Input.GetKey(KeyCode.W) && Input.GetKey(KeyCode.LeftShift) && isGrounded == true ){ currSpeed = runSpeed; isSprinting = true; }
+            if (Input.GetKeyUp(KeyCode.LeftShift))
+            {
+                isSprinting = false;
+                if(isGrounded2 == true)
+                    currSpeed = speed;
+            }
         }
     }
 }
