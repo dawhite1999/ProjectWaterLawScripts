@@ -4,21 +4,14 @@ using UnityEngine;
 
 public class AttackRange : MonoBehaviour
 {
-    Enemy enemy;
-    EnemyNav enemyNav;
-    // Start is called before the first frame update
-    void Start()
-    {
-        enemy = GetComponentInParent<Enemy>();
-        enemyNav = GetComponentInParent<EnemyNav>();
-    }
+    [SerializeField] Enemy enemy;
+
     //this is to trigger the attack state when the player enters the range
     private void OnTriggerEnter(Collider other)
     {
         if (other.GetComponent<Player>() != null && enemy.currentState != Enemy.EnemyStates.Stunned && enemy.currentState != Enemy.EnemyStates.Exploding)
         {
             enemy.SetState(Enemy.EnemyStates.Attacking);
-            enemyNav.AdjustSpeed(0);
         }
     }
     //stop attacking if player exits range
@@ -27,9 +20,6 @@ public class AttackRange : MonoBehaviour
         if (other.GetComponent<Player>() != null && enemy.currentState != Enemy.EnemyStates.Stunned && enemy.currentState != Enemy.EnemyStates.Exploding)
         {
             enemy.SetState(Enemy.EnemyStates.Pursuit);
-            enemy.animator.SetBool("isAttacking", false);
-            enemyNav.AdjustSpeed(enemy.walkSpeed);
-            enemy.attackTimeCounter = enemy.attackRate;
         }
     }
 }

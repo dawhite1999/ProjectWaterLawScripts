@@ -9,7 +9,7 @@ public class Projectile : MonoBehaviour
     public GameObject explosionEffect;
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag != "EnemyGun" && other.GetComponent<AttackRange>() == null && other.GetComponent<RoomHitBox>() == null)
+        if(other.tag != "EnemyGun" && other.GetComponent<AttackRange>() == null && other.GetComponent<RoomHitBox>() == null && other.GetComponent<EnemySpawner>() == null)
             StartCoroutine(Explosion());
         if (other.GetComponent<Player>() != null)
             other.GetComponent<Player>().RecieveDamage(damage);

@@ -2,22 +2,22 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Switch : MonoBehaviour
+public class AnimatorSwitch : MonoBehaviour
 {
     [SerializeField] protected bool switchValue;
     public Animator thingToAnimate;
-    [SerializeField] string anim1Name = "";
-    [SerializeField] string anim2Name = "";
+    [SerializeField] protected string anim1Name = "";
+    [SerializeField] protected string anim2Name = "";
     public Material switchOff;
     public Material switchOn;
-    private void Start()
+    protected void Start()
     {
         if (switchValue == false)
             GetComponent<Renderer>().material = switchOff;
         else
             GetComponent<Renderer>().material = switchOn;
     }
-    protected void OnCollisionEnter(Collision collision)
+    protected virtual void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.GetComponent<Player>() != null || collision.gameObject.GetComponent<InteractableObject>() != null)
         {

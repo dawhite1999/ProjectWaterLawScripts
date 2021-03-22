@@ -18,10 +18,9 @@ public class EnemyNav : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        navMeshAgent = GetComponent<NavMeshAgent>();
         player = FindObjectOfType<Player>();
+        navMeshAgent = GetComponent<NavMeshAgent>();
         enemy = GetComponent<Enemy>();
-        AdjustSpeed(enemy.walkSpeed);
         playerLoc = FindObjectOfType<Player>().gameObject.transform;
     }
     public void AdjustSpeed(float newSpeed) { navMeshAgent.speed = newSpeed; }

@@ -12,6 +12,7 @@ public class CameraMovement : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        mouseSensitity = PlayerPrefs.GetFloat("MouseSensitivity", 100);
     }
 
     // Update is called once per frame

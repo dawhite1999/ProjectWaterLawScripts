@@ -16,7 +16,7 @@ public class StatLvlHolder : MonoBehaviour
     public int staminaLevel;
     public int strengthLevel;
     public int skillPoints;
-
+    public bool[] spEarnCheck;
     public void SaveScore()
     {
         SaveMan.SaveScore(this);
@@ -37,6 +37,10 @@ public class StatLvlHolder : MonoBehaviour
             StaticMan.staminaLvl = playerData.staminaLvl;
             StaticMan.strengthLvl = playerData.strengthLvl;
             StaticMan.skillPoints = playerData.skillPoints;
+            for (int i = 0; i < StaticMan.spEarnCheck.Length; i++)
+            {
+                StaticMan.spEarnCheck[i] = spEarnCheck[i];
+            }
         }
     }
 }

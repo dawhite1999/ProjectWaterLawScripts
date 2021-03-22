@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class PauseMan : MonoBehaviour
+using UnityEngine.UI;
+public class PauseMan : MonoBehaviour, ILanguage
 {
     public GameObject pauseMenu;
     public GameObject optionsScreen;
@@ -12,11 +12,15 @@ public class PauseMan : MonoBehaviour
     bool opDisplay = false;
     bool confirmDisplayOn = false;
     bool movesOn = false;
-
+    CameraMovement cameraMovement;
+    LanguageMan languageMan;
+    [SerializeField] Text mouseSensText;
     private void Start()
     {
         GetComponentInChildren<AudioMan>().InitializeAudio();
         optionsScreen.SetActive(false);
+        cameraMovement = FindObjectOfType<CameraMovement>();
+        languageMan = FindObjectOfType<LanguageMan>();
     }
     public void Pause()
     {
@@ -47,7 +51,10 @@ public class PauseMan : MonoBehaviour
     {
         opDisplay = !opDisplay;
         if (opDisplay == true)
+        {
             optionsScreen.SetActive(true);
+            mouseSensText.text = languageMan.SetMenuLanguage(LanguageMan.MenuUi.MouseSensitivity, EngOrJap());
+        }
         else
             optionsScreen.SetActive(false);
     }
@@ -75,5 +82,18 @@ public class PauseMan : MonoBehaviour
     public void LoadMain()
     {
         FindObjectOfType<SceneMan>().LoadMainMenu();
+    }
+    public void AdjustMouse(float mouseValue)
+    {
+        cameraMovement.mouseSensitity = mouseValue;
+        PlayerPrefs.SetFloat("MouseSensitivity", mouseValue);
+    }
+
+    public bool EngOrJap()
+    {
+        if (StaticMan.isEnglish == true)
+            return true;
+        else
+            return false;
     }
 }

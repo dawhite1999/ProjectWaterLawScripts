@@ -11,4 +11,5 @@
    public static int staminaLvl;
    public static int strengthLvl;
    public static int skillPoints;
+   public static bool[] spEarnCheck;
 }

@@ -54,6 +54,7 @@ public class Player : MonoBehaviour
     bool isDead = false;
     [HideInInspector] public bool canSave = false;
     bool saveOn = false;
+    [HideInInspector] public bool canNxtStg = false;
 
     private void Start()
     {
@@ -106,7 +107,18 @@ public class Player : MonoBehaviour
         if (disableInput == false)
         {
             if (Input.GetKeyDown(attackButton)) { StartCoroutine(SwordSwing()); }
-            if (Input.GetKeyDown(KeyCode.Mouse1) && canSave == true) { TurnOnSave(); }
+            if (Input.GetKeyDown(KeyCode.Mouse1))
+            {
+                if (canSave == true)
+                {
+                    TurnOnSave();
+                    return;
+                }
+                if(canNxtStg == true)
+                {
+                    MoveToNextStage();
+                }
+            }
         }
     }
     //called where ever the player takes dameage
@@ -203,6 +215,14 @@ public class Player : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
-
+    }
+    //called when you right click inside a next stage station
+    void MoveToNextStage()
+    {
+        //increase the number of stages completed
+        GetComponent<StatLvlHolder>().stagesComplete++;
+        //disable input
+        disableInput = true;
+        FindObjectOfType<SceneMan>().LoadStage();
     }
 }

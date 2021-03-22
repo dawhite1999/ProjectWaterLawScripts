@@ -104,39 +104,52 @@ public class UpgradeMan : MonoBehaviour, ILanguage
         {
             case "GammaKnifeUp":
                 DisplayAbilStats(roomBeam.gammaCDMax, player.gammaBonus, statLvlHolder.gammaLevel);
-                DisplayNxtAbilSts(GammaNextLevel(statLvlHolder.gammaLevel, NextLevelStats.CoolDown), GammaNextLevel(statLvlHolder.gammaLevel, NextLevelStats.DamageBonus), statLvlHolder.gammaLevel);
+                DisplayNxtAbilSts(GammaNextLevel(statLvlHolder.gammaLevel, NextLevelStats.CoolDown), GammaNextLevel(statLvlHolder.gammaLevel, NextLevelStats.DamageBonus), statLvlHolder.gammaLevel, gammaCap);
                 break;
             case "RadioKnifeUp":
                 DisplayAbilStats(roomBeam.radioCDMax, player.radioBonus, statLvlHolder.radioLevel);
-                DisplayNxtAbilSts(RadioNextLevel(statLvlHolder.radioLevel, NextLevelStats.CoolDown), RadioNextLevel(statLvlHolder.radioLevel, NextLevelStats.DamageBonus), statLvlHolder.radioLevel);
+                DisplayNxtAbilSts(RadioNextLevel(statLvlHolder.radioLevel, NextLevelStats.CoolDown), RadioNextLevel(statLvlHolder.radioLevel, NextLevelStats.DamageBonus), statLvlHolder.radioLevel, radioCap);
                 break;
             case "CounterShockUp":
                 DisplayAbilStats(roomBeam.counterCDMax, player.counterMultiplier, statLvlHolder.counterLevel);
-                DisplayNxtAbilSts(CounterNextLevel(statLvlHolder.counterLevel, NextLevelStats.CoolDown), CounterNextLevel(statLvlHolder.counterLevel, NextLevelStats.DamageBonus), statLvlHolder.counterLevel);
+                DisplayNxtAbilSts(CounterNextLevel(statLvlHolder.counterLevel, NextLevelStats.CoolDown), CounterNextLevel(statLvlHolder.counterLevel, NextLevelStats.DamageBonus), statLvlHolder.counterLevel, counterCap);
                 break;
             case "InjectionShotUp":
                 DisplayAbilStats(roomBeam.injectionCDMax, player.injectionShotBonus, statLvlHolder.injectionLevel);
-                DisplayNxtAbilSts(InjectionNextLevel(statLvlHolder.injectionLevel + 1, NextLevelStats.CoolDown), InjectionNextLevel(statLvlHolder.injectionLevel + 1, NextLevelStats.DamageBonus), statLvlHolder.injectionLevel);
+                DisplayNxtAbilSts(InjectionNextLevel(statLvlHolder.injectionLevel + 1, NextLevelStats.CoolDown), InjectionNextLevel(statLvlHolder.injectionLevel + 1, NextLevelStats.DamageBonus), statLvlHolder.injectionLevel, injectionCap);
                 break;
             case "HitPointsUp":
                 DisplayStats(statLvlHolder.hPLevel, player.maxHealth, "Hit Points ");
-                DisplayNxtStats(statLvlHolder.hPLevel, HitPointsNL(statLvlHolder.hPLevel), "Hit Points ");
+                DisplayNxtStats(statLvlHolder.hPLevel, HitPointsNL(statLvlHolder.hPLevel), "Hit Points ", hPCap);
                 spCostText.text = languageMan.SetInGameSenetence(LanguageMan.InGameUI.SPCost, EngOrJap()) + SetSkillPoints(statLvlHolder.hPLevel).ToString();
                 break;
             case "StaminaUp":
                 DisplayStats(statLvlHolder.staminaLevel, player.maxStamina, "Stamina ");
-                DisplayNxtStats(statLvlHolder.staminaLevel, StaminaNL(statLvlHolder.staminaLevel), "Stamina ");
+                DisplayNxtStats(statLvlHolder.staminaLevel, StaminaNL(statLvlHolder.staminaLevel), "Stamina ", staminaCap);
                 spCostText.text = languageMan.SetInGameSenetence(LanguageMan.InGameUI.SPCost, EngOrJap()) + SetSkillPoints(statLvlHolder.staminaLevel).ToString();
                 break;
             case "RoomUp":
                 spCostText.text = languageMan.SetInGameSenetence(LanguageMan.InGameUI.SPCost, EngOrJap()) + SetSkillPoints(statLvlHolder.roomLevel).ToString();
                 descriptionText.text = "Current Level Stats" + "\n" + "Lvl " + statLvlHolder.roomLevel + "\n" + "Damage Threshold " + room.damageThreshold + "m" + "\n" + "Expand Rate " + room.growthRate + "\n" + "Room Active Time " + room.roomTimeActiveMax + "s";
-                nextLvlDescText.text = "Next Level Stats" + "\n" + "Lvl " + statLvlHolder.roomLevel + "\n" + "Damage Threshold " + RoomNL(statLvlHolder.roomLevel + 1, NLRoomStats.DamageThreshold) + "m" + "\n" + "Expand Rate " + RoomNL(statLvlHolder.roomLevel + 1, NLRoomStats.ExpandRate) + "\n" + "Room Active Time " + RoomNL(statLvlHolder.roomLevel + 1, NLRoomStats.RoomActive) + "s";
+                if(EngOrJap() == true)
+                {
+                    if(statLvlHolder.roomLevel + 1 > roomCap)
+                        nextLvlDescText.text = "Max level reached";
+                    else
+                        nextLvlDescText.text = "Next Level Stats" + "\n" + "Lvl " + statLvlHolder.roomLevel + "\n" + "Damage Threshold " + RoomNL(statLvlHolder.roomLevel + 1, NLRoomStats.DamageThreshold) + "m" + "\n" + "Expand Rate " + RoomNL(statLvlHolder.roomLevel + 1, NLRoomStats.ExpandRate) + "\n" + "Room Active Time " + RoomNL(statLvlHolder.roomLevel + 1, NLRoomStats.RoomActive) + "s";
+                }
+                else
+                {
+                    if (statLvlHolder.roomLevel + 1 > roomCap)
+                        nextLvlDescText.text = "Max level reached";
+                    else
+                        nextLvlDescText.text = "Next Level Stats" + "\n" + "Lvl " + statLvlHolder.roomLevel + "\n" + "Damage Threshold " + RoomNL(statLvlHolder.roomLevel + 1, NLRoomStats.DamageThreshold) + "m" + "\n" + "Expand Rate " + RoomNL(statLvlHolder.roomLevel + 1, NLRoomStats.ExpandRate) + "\n" + "Room Active Time " + RoomNL(statLvlHolder.roomLevel + 1, NLRoomStats.RoomActive) + "s";
+                }  
                 break;
             case "StrengthUp":
                 spCostText.text = languageMan.SetInGameSenetence(LanguageMan.InGameUI.SPCost, EngOrJap()) + SetSkillPoints(statLvlHolder.strengthLevel).ToString();
                 DisplayStats(statLvlHolder.strengthLevel, player.strength, "Strength ");
-                DisplayNxtStats(statLvlHolder.strengthLevel, StrengthNL(statLvlHolder.strengthLevel), "Strength ");
+                DisplayNxtStats(statLvlHolder.strengthLevel, StrengthNL(statLvlHolder.strengthLevel), "Strength ", strengthCap);
                 break;
         }
         tempAbilityName = skillButton.name;
@@ -158,13 +171,26 @@ public class UpgradeMan : MonoBehaviour, ILanguage
             descriptionText.text = "Current Level Stats" + "\n" + "Cooldown " + coolDown + "\n" + "Damage Bonus " + damageBonus;
     }
     //Called by SetDescription. sets next ability stats 
-    void DisplayNxtAbilSts(float coolDown, float damageBonus, int level)
+    void DisplayNxtAbilSts(float coolDown, float damageBonus, int level, int levelCap)
     {
         if (EngOrJap() == true)
-            nextLvlDescText.text = "Next Level Stats" + "\n" + "Lvl " + level + 1 + "\n" + "Cooldown " + coolDown + "\n" + "Damage Bonus " + damageBonus;
+        {
+            if(level + 1 > levelCap)
+                nextLvlDescText.text = "Max level reached";
+            else
+                nextLvlDescText.text = "Next Level Stats" + "\n" + "Lvl " + level + 1 + "\n" + "Cooldown " + coolDown + "\n" + "Damage Bonus " + damageBonus;
+        }
         else
-            nextLvlDescText.text = "Next Level Stats" + "\n" + "Cooldown " + coolDown + "\n" + "Damage Bonus " + damageBonus;
-        spCostText.text = languageMan.SetInGameSenetence(LanguageMan.InGameUI.SPCost, EngOrJap()) + SetSkillPoints(level + 1).ToString();
+        {
+            if (level + 1 > levelCap)
+                nextLvlDescText.text = "Max level reached";
+            else
+                nextLvlDescText.text = "Next Level Stats" + "\n" + "Cooldown " + coolDown + "\n" + "Damage Bonus " + damageBonus;
+        }
+        if(level + 1 > levelCap)
+            spCostText.text = "Max";
+        else
+            spCostText.text = languageMan.SetInGameSenetence(LanguageMan.InGameUI.SPCost, EngOrJap()) + SetSkillPoints(level + 1).ToString();
     }
     //Called by SetDescription. sets current ability stats 
     void DisplayStats(int level, float stat, string statName)
@@ -175,12 +201,22 @@ public class UpgradeMan : MonoBehaviour, ILanguage
             descriptionText.text = "Current Level Stats" + "\n" + "Lvl " + level + "\n" + statName + stat;
     }
     //Called by SetDescription. sets next ability stats 
-    void DisplayNxtStats(int level, float stat, string statName)
+    void DisplayNxtStats(int level, float stat, string statName, int levelCap)
     {
         if (EngOrJap() == true)
-            descriptionText.text = "Next Level Stats" + "\n" + "Lvl " + level + 1 + "\n" + statName + stat;
+        {
+            if (level + 1 > levelCap)
+                nextLvlDescText.text = "Max level reached";
+            else
+                descriptionText.text = "Next Level Stats" + "\n" + "Lvl " + level + 1 + "\n" + statName + stat;
+        }
         else
-            descriptionText.text = "Current Level Stats" + "\n" + "Lvl " + level + 1 + "\n" + statName + stat;
+        {
+            if (level + 1 > levelCap)
+                nextLvlDescText.text = "Max level reached";
+            else
+                descriptionText.text = "Current Level Stats" + "\n" + "Lvl " + level + 1 + "\n" + statName + stat;
+        }
     }
     //Called by SetDescription the skill point cost for each level
     int SetSkillPoints(int level)

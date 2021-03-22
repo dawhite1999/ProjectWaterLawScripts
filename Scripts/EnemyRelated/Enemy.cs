@@ -4,12 +4,15 @@ using UnityEngine;
 using UnityEngine.AI;
 public class Enemy : MonoBehaviour
 {
+    public string model;
     public float maxHealth;
     public float defense = 0.9f;
     public float walkSpeed;
     public float strength;
-    public float attackRate;
     public float stunDuration;
+    public float attackRate;
+    [HideInInspector] public bool isGrounded;
+    [HideInInspector] public bool undoStun = false;
     [SerializeField] protected float attackStartup;
     public GameObject hitParticles;
     public GameObject explodeParticles;
@@ -20,9 +23,10 @@ public class Enemy : MonoBehaviour
     AudioMan audioMan;
     public Animator animator;
     Player player;
-    [HideInInspector] public float attackTimeCounter;
+    EnemyNav enemyNav;
+    protected float attackTimeCounter;
     [HideInInspector] public List<EnemyStates> EnemyStateList = new List<EnemyStates>();
-    [HideInInspector] public EnemyStates currentState = EnemyStates.Pursuit;
+    public EnemyStates currentState = EnemyStates.Pursuit;
 
     public enum EnemyStates
     {
@@ -32,13 +36,37 @@ public class Enemy : MonoBehaviour
         Exploding
     }
     //called to set a new state
-    public void SetState(EnemyStates newState) { currentState = newState; }
+    public void SetState(EnemyStates newState)
+    {
+        currentState = newState;
+        switch(currentState)
+        {
+            case EnemyStates.Attacking:
+                enemyNav.AdjustSpeed(0);
+                break;
+            case EnemyStates.Exploding:
+                StartCoroutine(Defeat());
+                break;
+            case EnemyStates.Pursuit:
+                enemyNav.AdjustSpeed(walkSpeed);
+                attackTimeCounter = attackRate;
+                break;
+            case EnemyStates.Stunned:
+                StartCoroutine(Stun());
+                break;
+        }
+    }
+    public GameObject GetEnemy()
+    {
+        return gameObject;
+    }
     protected virtual void Start()
     {
         currentHealth = maxHealth;
         attackTimeCounter = attackRate;
         audioMan = FindObjectOfType<AudioMan>();
         player = FindObjectOfType<Player>();
+        enemyNav = GetComponent<EnemyNav>();
         animator = GetComponent<Animator>();
         EnemyStateList.Add(EnemyStates.Pursuit);
         EnemyStateList.Add(EnemyStates.Attacking);
@@ -58,20 +86,28 @@ public class Enemy : MonoBehaviour
         {
             damageTaken *= defense;
             currentHealth = Mathf.RoundToInt(currentHealth - damageTaken);
+            if(damageTaken > 9999)
+            {
+                if (currentHealth <= 0)
+                {
+                    currentHealth = 0;
+                    StartCoroutine(Defeat());
+                    return;
+                }
+            }
             Transform damagePopupTransform = Instantiate(damagePopupPrefab, gameObject.transform.position, Quaternion.identity);
             DamagePopup damagePopup = damagePopupTransform.GetComponent<DamagePopup>();
             damagePopup.SetDamage(damageTaken);
             if (currentHealth <= 0)
             {
-                currentHealth = 0;  
-                StartCoroutine(Defeat());
+                currentHealth = 0;
+                SetState(EnemyStates.Exploding);
             }
         }
     }
     //called when enemy is hit with a projectile sent by the player, this will disable movement and make enemy interactable
     IEnumerator Stun()
     {
-        SetState(EnemyStates.Stunned);
         animator.SetBool("isStunned", true);
         sparkParticles.SetActive(true);
         GetComponent<EnemyNav>().AdjustSpeed(0);
@@ -79,7 +115,13 @@ public class Enemy : MonoBehaviour
         GetComponent<NavMeshAgent>().enabled = false;
         GetComponent<Rigidbody>().isKinematic = false;
         yield return new WaitForSeconds(stunDuration);
+        undoStun = true;
 
+    }
+    //Called when enemy is ready to be unstunned, and it touches the ground
+    public void UnStun()
+    {
+        undoStun = false;
         sparkParticles.SetActive(false);
         animator.SetBool("isStunned", false);
         if (FindObjectOfType<RoomBeam>().heldObject == gameObject)
@@ -99,7 +141,7 @@ public class Enemy : MonoBehaviour
             {
                 RecieveDamage(TaktDamageCalc(collision.gameObject.GetComponent<Rigidbody>()));
                 if (currentHealth > 0)
-                    StartCoroutine(Stun());
+                    SetState(EnemyStates.Stunned);
             }
         }
         if(currentState == EnemyStates.Stunned)
@@ -117,7 +159,6 @@ public class Enemy : MonoBehaviour
     }
     IEnumerator Defeat()
     {
-        SetState(EnemyStates.Exploding);
         GetComponent<EnemyNav>().AdjustSpeed(0);
         animator.SetBool("isExploded", true);
         yield return new WaitForSeconds(koAnimTime);
@@ -126,6 +167,8 @@ public class Enemy : MonoBehaviour
         if (FindObjectOfType<RoomHitBox>() != null)
             FindObjectOfType<RoomHitBox>().objsInRoom.Remove(gameObject);
         yield return new WaitForSeconds(.4f);
-        Destroy(gameObject);
+        if (FindObjectOfType<EnemySpawner>() != null)
+            FindObjectOfType<EnemySpawner>().RespawnEnemy(gameObject);
+            Destroy(gameObject);
     }
 }

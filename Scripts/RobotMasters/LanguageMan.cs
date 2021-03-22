@@ -31,8 +31,8 @@ public class LanguageMan : MonoBehaviour
             FindObjectOfType<TitleMan>().japaneseCheck.SetActive(true);
         }
     }
-    public enum MenuUi { NewGame, ContinueGame, Options, Exit, Yes, No, QuitConfirm, Language, }
-    public enum InGameUI { YouDied, OpenSave, Gamma, Radio, Counter, Injection, HitPoints, Stamina, Room, SkillPoints, SaveButton, SaveStatus, Strength, NoSkillPoints, LevelCap, SPCost }
+    public enum MenuUi { NewGame, ContinueGame, Options, Exit, Yes, No, QuitConfirm, Language, MouseSensitivity}
+    public enum InGameUI { YouDied, OpenSave, Gamma, Radio, Counter, Injection, HitPoints, Stamina, Room, SkillPoints, SaveButton, SaveStatus, Strength, NoSkillPoints, LevelCap, SPCost, MoveNxtStage }
     public enum Tutorial { Room, Shambles, Takt, RoomHealth, Abilities, Hold, Controls}
 
     public string SetMenuLanguage(MenuUi textToSet, bool isEng)
@@ -68,6 +68,7 @@ public class LanguageMan : MonoBehaviour
         englishMenuDict.Add(MenuUi.Yes, "Yes");
         englishMenuDict.Add(MenuUi.Options, "Options");
         englishMenuDict.Add(MenuUi.QuitConfirm, "Are you sure you want to quit?");
+        englishMenuDict.Add(MenuUi.MouseSensitivity, "Mouse Sensitivity");
         //in game
         englishUIDict.Add(InGameUI.YouDied, "You Died");
         englishUIDict.Add(InGameUI.OpenSave, "Right Click to open the save menu.");
@@ -85,6 +86,7 @@ public class LanguageMan : MonoBehaviour
         englishUIDict.Add(InGameUI.NoSkillPoints, "Not enough skill points");
         englishUIDict.Add(InGameUI.LevelCap, "Cannot upgrade further");
         englishUIDict.Add(InGameUI.SPCost, "Skill Points needed ");
+        englishUIDict.Add(InGameUI.MoveNxtStage, "Right Click to move on to the next stage");
         //Tutorial
         englishTutDict.Add(Tutorial.Abilities, "Radio Knife: Increases damage dealt for a short time. Press 1 to activate" + "\n" + "Gamma Knife: A powerful attack that bypasses enemy defense. Press 2 to activate." + "\n" + "Injection Shot: A projectile attack. Press 3 to activate." + "\n" + "Counter Shock: An attack that grows in strength the lower your hitpoints get. Press 4 to activate." + "\n" + "Defeat this enemy to move on");
         englishTutDict.Add(Tutorial.Room, "Press and Hold Q to create a room." + "\n" + "While in a room, your abilities activate." + "\n" + "Your abilities will only activate on objects that are inside the room with you." + "\n" + "The following explanations of your abilities will assume both you and the object are in the room");
