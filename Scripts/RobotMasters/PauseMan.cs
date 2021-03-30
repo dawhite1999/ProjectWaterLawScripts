@@ -14,7 +14,7 @@ public class PauseMan : MonoBehaviour, ILanguage
     bool movesOn = false;
     CameraMovement cameraMovement;
     LanguageMan languageMan;
-    [SerializeField] Text mouseSensText;
+    public Text mouseSensText;
     private void Start()
     {
         GetComponentInChildren<AudioMan>().InitializeAudio();

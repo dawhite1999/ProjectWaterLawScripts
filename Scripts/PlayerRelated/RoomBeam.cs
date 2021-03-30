@@ -200,7 +200,7 @@ public class RoomBeam : MonoBehaviour
         }
     }
     //called when shambles ends
-    void RefreshShamblesVars()
+    public void RefreshShamblesVars()
     {
         if(itemToSwitch1 != null)
             itemToSwitch1.GetComponent<Outline>().enabled = false;

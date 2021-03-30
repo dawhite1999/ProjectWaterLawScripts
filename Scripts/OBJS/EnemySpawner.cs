@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [SerializeField] Transform spawnPoint;
-    [SerializeField] GameObject[] enemies;
+    public Transform spawnPoint;
+    public GameObject[] enemies;
     [SerializeField] bool canSpawn = true;
-    public int spawnerNumber;
     bool spawnNormal = false;
     bool spawnRange = false;
     bool spawnBig = false;

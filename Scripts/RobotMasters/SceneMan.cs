@@ -5,10 +5,11 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 public class SceneMan : MonoBehaviour, ILanguage
 {
-    [SerializeField] GameObject fadeScreen;
+    GameObject fadeScreen;
 
     private void Start()
     {
+        fadeScreen = GameObject.Find("FadeScreen");
         StartCoroutine(SceneFade(false, ""));
     }
     public void LoadMainMenu()

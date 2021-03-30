@@ -6,8 +6,8 @@ public class InteractableObject : MonoBehaviour
 {
     public bool beingLaunched = false;
     public int itemType = 0;
-    [SerializeField] GameObject blackParticles;
-    [SerializeField] ItemSpawner spawner;
+    public GameObject blackParticles;
+    public ItemSpawner spawner;
     //this is to make sure you cant pick up the item immediatly after it is thrown
     public void InvokeRePickup() { Invoke("RePickup", 1f); }
     void RePickup() { beingLaunched = false; }

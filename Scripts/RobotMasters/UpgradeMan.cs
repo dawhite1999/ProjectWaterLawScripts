@@ -4,12 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 public class UpgradeMan : MonoBehaviour, ILanguage
 {
-    [SerializeField] GameObject[] buttons = new GameObject[0];
-    [SerializeField] Text skillPointText;
-    [SerializeField] Text eventText;
-    [SerializeField] Text descriptionText;
-    [SerializeField] Text spCostText;
-    [SerializeField] Text nextLvlDescText;
+    public GameObject[] buttons = new GameObject[0];
+    public Text skillPointText;
+    public Text eventText;
+    public Text descriptionText;
+    public Text spCostText;
+    public Text nextLvlDescText;
     Player player;
     RoomBeam roomBeam;
     Room room;
@@ -17,14 +17,14 @@ public class UpgradeMan : MonoBehaviour, ILanguage
     StatLvlHolder statLvlHolder;
     enum NextLevelStats { CoolDown, DamageBonus }
     enum NLRoomStats { ExpandRate, DamageThreshold, RoomActive}
-    [SerializeField] int gammaCap;
-    [SerializeField] int radioCap;
-    [SerializeField] int counterCap;
-    [SerializeField] int injectionCap;
-    [SerializeField] int roomCap;
-    [SerializeField] int strengthCap;
-    [SerializeField] int hPCap;
-    [SerializeField] int staminaCap;
+    [SerializeField] int gammaCap = 0;
+    [SerializeField] int radioCap = 0;
+    [SerializeField] int counterCap = 0;
+    [SerializeField] int injectionCap = 0;
+    [SerializeField] int roomCap = 0;
+    [SerializeField] int strengthCap = 0;
+    [SerializeField] int hPCap = 0;
+    [SerializeField] int staminaCap = 0;
     int spCost;
     string tempAbilityName;
     public bool EngOrJap()

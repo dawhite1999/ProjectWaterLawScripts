@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Door : MonoBehaviour
 {
-    [SerializeField] Transform top;
-    [SerializeField] Transform bottom;
+    public Transform top;
+    public Transform bottom;
     public bool canMove;
     [SerializeField] float speed = 5.0F;
     [Header("Will stop lerping after this amount of time")]
@@ -13,6 +13,8 @@ public class Door : MonoBehaviour
     private float startTime;
     private float journeyLength;
     bool isOpening = false;
+
+    public float GetWaitTime() { return waitTime; }
     void LerpDoor()
     {
         // Distance moved equals elapsed time times speed..

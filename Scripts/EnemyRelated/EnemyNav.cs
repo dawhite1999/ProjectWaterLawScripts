@@ -8,26 +8,24 @@ public class EnemyNav : MonoBehaviour
     //unity
     [HideInInspector] public Transform playerLoc;
     //references
-    RaycastHit rayHit;
-    NavMeshAgent navMeshAgent;
-    Player player;
-    Enemy enemy;
-    //variables
-    [SerializeField] float detBeamDis;
+    protected RaycastHit rayHit;
+    protected NavMeshAgent navMeshAgent;
+    protected Player player;
+    protected Enemy enemy;
 
     // Start is called before the first frame update
-    void Start()
+    protected virtual void Start()
     {
         player = FindObjectOfType<Player>();
         navMeshAgent = GetComponent<NavMeshAgent>();
         enemy = GetComponent<Enemy>();
         playerLoc = FindObjectOfType<Player>().gameObject.transform;
     }
-    public void AdjustSpeed(float newSpeed) { navMeshAgent.speed = newSpeed; }
+    public void AdjustSpeed(float newSpeed) { GetComponent<NavMeshAgent>().speed = newSpeed; }
     // Update is called once per frame
-    void Update() { PursuePlayer(); }
+    protected void Update() { PursuePlayer(); }
 
-    void PursuePlayer()
+    protected void PursuePlayer()
     {
         if(enemy.currentState == Enemy.EnemyStates.Pursuit)
         {

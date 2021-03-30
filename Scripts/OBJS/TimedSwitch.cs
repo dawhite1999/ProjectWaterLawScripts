@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TimedSwitch : MonoBehaviour
+public class TimedSwitch : DefaultSwitch
 {
-    [SerializeField] float timeOn;
-    [SerializeField] GameObject[] timedSwitches = new GameObject[0];
-    public Material switchOff;
-    public Material switchOn;
-    [SerializeField] protected bool switchValue;
-    [SerializeField] Door door;
-    bool lerpOnce = false;
+    [SerializeField] protected float timeOn = 0;
+    public GameObject[] timedSwitches = new GameObject[0];
 
-    protected void OnCollisionEnter(Collision collision)
+    protected override void Start()
+    {
+        return;
+    }
+    protected override void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.GetComponent<Player>() != null || collision.gameObject.GetComponent<InteractableObject>() != null && switchValue == false)
         {
@@ -36,7 +35,8 @@ public class TimedSwitch : MonoBehaviour
             }
         }
     }
-    bool SwitchCheck()
+
+    protected bool SwitchCheck()
     {
         foreach (GameObject timedSwitch in timedSwitches)
         {
@@ -45,7 +45,7 @@ public class TimedSwitch : MonoBehaviour
         }
         return true;
     }
-    void TurnOff()
+    protected void TurnOff()
     {
         switchValue = false;
         GetComponent<Renderer>().material = switchOff;

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AttackRange : MonoBehaviour
 {
-    [SerializeField] Enemy enemy;
+    public Enemy enemy;
 
     //this is to trigger the attack state when the player enters the range
     private void OnTriggerEnter(Collider other)

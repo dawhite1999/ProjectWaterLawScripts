@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class TutorialZone : MonoBehaviour, ILanguage
 {
     public GameObject tutorLine;
-    [SerializeField] LanguageMan languageMan;
+    public LanguageMan languageMan;
     [SerializeField] int helpfulText = 0;
     public EnemyNav enemy;
     private void OnTriggerEnter(Collider other)

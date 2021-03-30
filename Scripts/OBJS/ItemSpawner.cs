@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class ItemSpawner : MonoBehaviour
 {
-    [SerializeField] Transform spawnPoint;
-    [SerializeField] GameObject itemOriginal;
-    [SerializeField] GameObject itemCopy;
+    public Transform spawnPoint;
+    public GameObject itemOriginal;
+    public GameObject itemCopy;
     public void TeleportItem(GameObject item)
     {
         item.transform.position = spawnPoint.transform.position;

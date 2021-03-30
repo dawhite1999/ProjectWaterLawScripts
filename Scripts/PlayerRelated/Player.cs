@@ -25,18 +25,18 @@ public class Player : MonoBehaviour
     [SerializeField] float staminaRecoveryRate = 0;
     [HideInInspector] public float counterDamage = 0;
     [Header("References")]
-    public Slider healthBar;
-    public Slider staminaBar;
-    AudioMan audioMan;
-    [HideInInspector] public Animator animator;
     public GameObject swordHitBox;
     public GameObject sword;
     public GameObject swordTip;
-    public GameObject radioBackground;
-    public GameObject gammaBackground;
-    public GameObject injectionBackground;
-    public GameObject counterBackground;
-    public GameObject saveScreen;
+    [HideInInspector] public Slider healthBar;
+    [HideInInspector] public Slider staminaBar;
+    AudioMan audioMan;
+    [HideInInspector] public Animator animator;
+    [HideInInspector] public GameObject radioBackground;
+    [HideInInspector] public GameObject gammaBackground;
+    [HideInInspector] public GameObject injectionBackground;
+    [HideInInspector] public GameObject counterBackground;
+    [HideInInspector] public GameObject saveScreen;
     [Header("KeyCodes")]
     [SerializeField] KeyCode attackButton = KeyCode.Q;
     public KeyCode holdButton = KeyCode.Mouse1;
@@ -58,6 +58,13 @@ public class Player : MonoBehaviour
 
     private void Start()
     {
+        radioBackground = GameObject.Find("RadioKnifeBack");
+        gammaBackground = GameObject.Find("GammaKnifeBack");
+        injectionBackground = GameObject.Find("InjectionShotBack");
+        counterBackground = GameObject.Find("CounterShockBack");
+        saveScreen = GameObject.Find("SaveScreen");
+        healthBar = GameObject.Find("HealthBar").GetComponent<Slider>();
+        staminaBar = GameObject.Find("StaminaBar").GetComponent<Slider>();
         currentHealth = maxHealth;
         currentStamina = maxStamina;
         staminaBar.maxValue = maxStamina;
@@ -224,5 +231,11 @@ public class Player : MonoBehaviour
         //disable input
         disableInput = true;
         FindObjectOfType<SceneMan>().LoadStage();
+    }
+
+    public void AddHealth()
+    {
+        currentHealth = maxHealth;
+        healthBar.value = currentHealth;
     }
 }

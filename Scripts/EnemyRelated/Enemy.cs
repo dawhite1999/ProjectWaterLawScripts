@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 public class Enemy : MonoBehaviour
 {
+    //varibales
     public string model;
     public float maxHealth;
     public float defense = 0.9f;
@@ -14,19 +15,22 @@ public class Enemy : MonoBehaviour
     [HideInInspector] public bool isGrounded;
     [HideInInspector] public bool undoStun = false;
     [SerializeField] protected float attackStartup;
+    [SerializeField] protected float koAnimTime = 0;
+    [HideInInspector] public float currentHealth;
+    [HideInInspector] public List<EnemyStates> EnemyStateList = new List<EnemyStates>();
+    protected float attackTimeCounter;
+    public EnemyStates currentState = EnemyStates.Pursuit;
+    //references
     public GameObject hitParticles;
     public GameObject explodeParticles;
     public GameObject sparkParticles;
     public Transform damagePopupPrefab;
-    [SerializeField] float koAnimTime = 0;
-    [HideInInspector] public float currentHealth;
     AudioMan audioMan;
     public Animator animator;
     Player player;
-    EnemyNav enemyNav;
-    protected float attackTimeCounter;
-    [HideInInspector] public List<EnemyStates> EnemyStateList = new List<EnemyStates>();
-    public EnemyStates currentState = EnemyStates.Pursuit;
+    protected EnemyNav enemyNav;
+    protected EnemyCounter enemyCounter;
+    protected NavMeshAgent navMeshAgent;
 
     public enum EnemyStates
     {
@@ -48,7 +52,8 @@ public class Enemy : MonoBehaviour
                 StartCoroutine(Defeat());
                 break;
             case EnemyStates.Pursuit:
-                enemyNav.AdjustSpeed(walkSpeed);
+                if(enemyNav != null)
+                    enemyNav.AdjustSpeed(walkSpeed);
                 attackTimeCounter = attackRate;
                 break;
             case EnemyStates.Stunned:
@@ -68,6 +73,7 @@ public class Enemy : MonoBehaviour
         player = FindObjectOfType<Player>();
         enemyNav = GetComponent<EnemyNav>();
         animator = GetComponent<Animator>();
+        navMeshAgent = GetComponent<NavMeshAgent>(); 
         EnemyStateList.Add(EnemyStates.Pursuit);
         EnemyStateList.Add(EnemyStates.Attacking);
         EnemyStateList.Add(EnemyStates.Stunned);
@@ -75,6 +81,9 @@ public class Enemy : MonoBehaviour
         GetComponent<Outline>().OutlineColor = new Color(0, 1, 0.15f);
         GetComponent<Outline>().OutlineWidth = 10;
         GetComponent<Outline>().enabled = false;
+        if (FindObjectOfType<EnemyCounter>() != null)
+            enemyCounter = FindObjectOfType<EnemyCounter>();
+        SetState(EnemyStates.Pursuit);
     }
     //make decision is overwritten in derivitive classes
     protected virtual void Update(){ MakeDecision(); }
@@ -110,9 +119,9 @@ public class Enemy : MonoBehaviour
     {
         animator.SetBool("isStunned", true);
         sparkParticles.SetActive(true);
-        GetComponent<EnemyNav>().AdjustSpeed(0);
+        enemyNav.AdjustSpeed(0);
         gameObject.AddComponent<InteractableObject>();
-        GetComponent<NavMeshAgent>().enabled = false;
+        navMeshAgent.enabled = false;
         GetComponent<Rigidbody>().isKinematic = false;
         yield return new WaitForSeconds(stunDuration);
         undoStun = true;
@@ -127,9 +136,9 @@ public class Enemy : MonoBehaviour
         if (FindObjectOfType<RoomBeam>().heldObject == gameObject)
             FindObjectOfType<RoomBeam>().LetGo();
         GetComponent<Rigidbody>().isKinematic = true;
-        GetComponent<NavMeshAgent>().enabled = true;
+        navMeshAgent.enabled = true;
         Destroy(GetComponent<InteractableObject>());
-        GetComponent<EnemyNav>().AdjustSpeed(walkSpeed);
+        enemyNav.AdjustSpeed(walkSpeed);
         SetState(EnemyStates.Pursuit);
     }
     //this is called to stun the enemy, or take damage when enemy is thrown
@@ -157,9 +166,9 @@ public class Enemy : MonoBehaviour
         netDamage *= incomingObj.mass;
         return netDamage;
     }
-    IEnumerator Defeat()
+    protected virtual IEnumerator Defeat()
     {
-        GetComponent<EnemyNav>().AdjustSpeed(0);
+        enemyNav.AdjustSpeed(0);
         animator.SetBool("isExploded", true);
         yield return new WaitForSeconds(koAnimTime);
         explodeParticles.SetActive(true);
@@ -169,6 +178,8 @@ public class Enemy : MonoBehaviour
         yield return new WaitForSeconds(.4f);
         if (FindObjectOfType<EnemySpawner>() != null)
             FindObjectOfType<EnemySpawner>().RespawnEnemy(gameObject);
+        if (enemyCounter != null)
+            enemyCounter.RemoveEnemy(GetComponent<Enemy>());
             Destroy(gameObject);
     }
 }

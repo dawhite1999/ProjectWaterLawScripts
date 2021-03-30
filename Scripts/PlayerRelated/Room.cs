@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Room : MonoBehaviour
 {
-    public GameObject roomHolder;
-    public GameObject room;
+    [HideInInspector] public GameObject roomHolder;
+    [HideInInspector] public GameObject room;
     [SerializeField] KeyCode RoomButton = KeyCode.Q;
     public float growthRate = 0;
     public float damageThreshold = 0;
@@ -16,11 +16,15 @@ public class Room : MonoBehaviour
     bool playOnce = false;
     Player player;
     HypeMan hypeMan;
+    RoomBeam roomBeam;
     // Start is called before the first frame update
     void Start()
     {
         player = GetComponent<Player>();
         hypeMan = FindObjectOfType<HypeMan>();
+        roomBeam = GetComponent<RoomBeam>();
+        roomHolder = GameObject.Find("RoomHolder");
+        room = GameObject.Find("Room");
         room.SetActive(false);
         roomTimeActiveCurr = roomTimeActiveMax;
     }
@@ -31,27 +35,30 @@ public class Room : MonoBehaviour
     //has the inputs for turning on and off the room
     void InputCheck()
     {
-        if(Input.GetKeyDown(RoomButton))
+        if(player.disableInput == false)
         {
-            if (room.activeSelf == false)
+            if (Input.GetKeyDown(RoomButton))
             {
-                room.SetActive(true);
-                hypeMan.PHT("Room");
-                player.animator.SetBool("roomExpanding", true);
-                player.UseStamina();
-                return;
+                if (room.activeSelf == false)
+                {
+                    room.SetActive(true);
+                    hypeMan.PHT("Room");
+                    player.animator.SetBool("roomExpanding", true);
+                    player.UseStamina();
+                    return;
+                }
+                else
+                {
+                    CancelRoom();
+                    room.SetActive(true);
+                    player.UseStamina();
+                }
             }
-            else
-            {
-                CancelRoom();
-                room.SetActive(true);
-                player.UseStamina();
-            }
+            if (Input.GetKey(RoomButton))
+                ExpandRoom();
+            if (Input.GetKeyUp(RoomButton))
+                SetLockedRoom();
         }
-        if (Input.GetKey(RoomButton))
-            ExpandRoom();
-        if (Input.GetKeyUp(RoomButton))
-            SetLockedRoom();
     }
     //called to put a time limit on how long a room is active
     void RoomCountDown()
@@ -99,8 +106,9 @@ public class Room : MonoBehaviour
         player.animator.SetBool("roomExpanding", false);
         player.animator.SetBool("isHolding", false);
         room.transform.localScale = new Vector3(1, 1, 1);
-        GetComponent<Player>().inRoom = false;
-        GetComponent<RoomBeam>().LetGo();
+        player.inRoom = false;
+        roomBeam.RefreshShamblesVars();
+        roomBeam.LetGo();
         foreach (GameObject item in FindObjectOfType<RoomHitBox>().objsInRoom)
         {
             item.GetComponent<RoomChecker>().inRoom = false;

@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TriggerSwitch : MonoBehaviour
+public class TriggerSwitch : DefaultSwitch
 {
-    [SerializeField] Door door;
-    [SerializeField] Material switchOff;
-    [SerializeField] Material switchOn;
-    [SerializeField] GameObject switchGFX;
+    public GameObject switchGFX;
     [SerializeField] enum SwitchType { Sphere, Box}
     [SerializeField] SwitchType switchType;
 
+    protected override void Start()
+    {
+        return;
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (other.GetComponent<Player>() != null || other.GetComponent<InteractableObject>() != null)
