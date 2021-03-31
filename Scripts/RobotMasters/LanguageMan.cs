@@ -31,8 +31,8 @@ public class LanguageMan : MonoBehaviour
             FindObjectOfType<TitleMan>().japaneseCheck.SetActive(true);
         }
     }
-    public enum MenuUi { NewGame, ContinueGame, Options, Exit, Yes, No, QuitConfirm, Language, MouseSensitivity}
-    public enum InGameUI { YouDied, OpenSave, Gamma, Radio, Counter, Injection, HitPoints, Stamina, Room, SkillPoints, SaveButton, SaveStatus, Strength, NoSkillPoints, LevelCap, SPCost, MoveNxtStage, HealCharges}
+    public enum MenuUi { NewGame, ContinueGame, Options, Exit, Yes, No, QuitConfirm, Language, MouseSensitivity, NoSave, NewGameConfirm}
+    public enum InGameUI { YouDied, OpenSave, Gamma, Radio, Counter, Injection, HitPoints, Stamina, Room, SkillPoints, SaveButton, SaveStatus, Strength, NoSkillPoints, LevelCap, SPCost, MoveNxtStage, HealCharges, SPEarned}
     public enum Tutorial { Room, Shambles, Takt, RoomHealth, Abilities, Hold, Controls}
 
     public string SetMenuLanguage(MenuUi textToSet, bool isEng)
@@ -69,6 +69,8 @@ public class LanguageMan : MonoBehaviour
         englishMenuDict.Add(MenuUi.Options, "Options");
         englishMenuDict.Add(MenuUi.QuitConfirm, "Are you sure you want to quit?");
         englishMenuDict.Add(MenuUi.MouseSensitivity, "Mouse Sensitivity");
+        englishMenuDict.Add(MenuUi.NoSave, "No save data found.");
+        englishMenuDict.Add(MenuUi.NewGameConfirm, "Are you sure you want to start a new game? Any existing save data will be deleted.");
         //in game
         englishUIDict.Add(InGameUI.YouDied, "You Died");
         englishUIDict.Add(InGameUI.OpenSave, "Right Click to open the save menu.");
@@ -88,14 +90,15 @@ public class LanguageMan : MonoBehaviour
         englishUIDict.Add(InGameUI.SPCost, "Skill Points needed ");
         englishUIDict.Add(InGameUI.MoveNxtStage, "Right Click to move on to the next stage");
         englishUIDict.Add(InGameUI.HealCharges, "Charges left: ");
+        englishUIDict.Add(InGameUI.SPEarned, "Skill Points earned!");
         //Tutorial
-        englishTutDict.Add(Tutorial.Abilities, "Radio Knife: Increases damage dealt for a short time. Press 1 to activate" + "\n" + "Gamma Knife: A powerful attack that bypasses enemy defense. Press 2 to activate." + "\n" + "Injection Shot: A projectile attack. Press 3 to activate." + "\n" + "Counter Shock: An attack that grows in strength the lower your hitpoints get. Press 4 to activate." + "\n" + "Defeat this enemy to move on");
-        englishTutDict.Add(Tutorial.Room, "Press and Hold Q to create a room." + "\n" + "While in a room, your abilities activate." + "\n" + "Your abilities will only activate on objects that are inside the room with you." + "\n" + "The following explanations of your abilities will assume both you and the object are in the room");
-        englishTutDict.Add(Tutorial.RoomHealth, "Inside a room, you will not recover stamina." + "\n" + "Without stamina, creating the room will use 10% of your life instead." + "\n" + "A room has no size limit, but big rooms will drain your life.");
-        englishTutDict.Add(Tutorial.Shambles, "Press E to swap your position with an object." + "\n" + "To swap the positions of one object with another, hold E, look at one object, look at another, and then release E.");
-        englishTutDict.Add(Tutorial.Takt, "Press R to launch a held object." + "\n" + "Launched objects will continue to travel outside of your room" + "\n" + "Normally, enemies do not act as interactable objects. You can not pick up, shambles, or takt them. However, if you launch an object at an enemy, the enemy will enter the stunned state. Stunned enemies act as other interactable objects.");
-        englishTutDict.Add(Tutorial.Hold, "To hold an item, look at the item, and hold right click");
-        englishTutDict.Add(Tutorial.Controls, "W = move forward." + "\n" + "A = move left." + "\n" + "S = move backwards" + "\n" + "D = move right" + "\n" + "Shift + W =  Run" + "\n" + "Spacebar = jump" + "\n" + "Right click = attack");
+        englishTutDict.Add(Tutorial.Abilities, "While in a room: " + "\n" + "Radio Knife: Increases damage dealt for a short time." + "\n" + "Press 1 to activate Radio Knife" + "\n" + "Gamma Knife: A powerful attack that bypasses enemy defense." + "\n" + "Press 2 to activate Gamma Knife." + "\n" + "Injection Shot: A projectile attack." + "\n" + "Press 3 to activate Injection Shot." + "\n" + "Counter Shock: An attack that grows in strength the lower your hitpoints get." + "\n" + "Press 4 to activate Counter Shock.");
+        englishTutDict.Add(Tutorial.Room, "Press and Hold Q to create a room." + "\n" + "While in a room, your abilities activate." + "\n" + "Your abilities will only activate on objects that are inside the room with you.");
+        englishTutDict.Add(Tutorial.RoomHealth, "Inside a room, you will not recover stamina." + "\n" + "Without stamina, creating the room will use 10% of your HitPoints instead." + "\n" + "A room has no size limit, but big rooms will drain your life.");
+        englishTutDict.Add(Tutorial.Shambles, "Press E for Shambles (While in a room)." + "\n" + "Shambles will swap your position with an object." + "\n" + "To swap the positions of one object with another, hold E, look at one object, look at another, and then release E.");
+        englishTutDict.Add(Tutorial.Takt, "Press R for Takt (While in a room)." + "\n" +"Takt will launch a held object." + "\n" + "Launched objects will continue to travel outside of your room." + "\n" + "Normally, enemies do not act as interactable objects. That is, you can not pick up, shambles, or takt them. However, if you launch an object at an enemy, the enemy will enter the stunned state. Stunned enemies act as other interactable objects.");
+        englishTutDict.Add(Tutorial.Hold, "To hold an item, look at the item, and hold right click. (While in a room)");
+        englishTutDict.Add(Tutorial.Controls, "W = move forward." + "\n" + "A = move left." + "\n" + "S = move backwards." + "\n" + "D = move right." + "\n" + "Shift + W =  Run." + "\n" + "Spacebar = jump." + "\n" + "Right click = attack.");
     }
     void AddJapanese()
     {

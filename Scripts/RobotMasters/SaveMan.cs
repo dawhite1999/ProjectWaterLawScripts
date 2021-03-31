@@ -35,4 +35,15 @@ public static class SaveMan
             return null;
         }
     }
+    public static void DeleteSave()
+    {
+        string path = Application.persistentDataPath + "/savedstats.law";
+        if (File.Exists(path))
+        {
+            FileStream stream = new FileStream(path, FileMode.Open);
+            File.Delete(path);
+        }
+        else
+            Debug.LogWarning("Save file not found. This is fine if you haven't saved before");
+    }
 }

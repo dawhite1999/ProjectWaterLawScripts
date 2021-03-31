@@ -12,8 +12,7 @@ public class AudioMan : MonoBehaviour
     [SerializeField] AudioSource[] playerSFXSources = new AudioSource[4];
     [SerializeField] AudioSource[] enemySFXSources = new AudioSource[4];
     [SerializeField] AudioSource[] otherSFXSources = new AudioSource[4];
-    Slider musicSlider;
-    Slider sfxSlider;
+
     //clips
     [SerializeField] AudioClip[] bgmClips = new AudioClip[0];
     [SerializeField] AudioClip[] playerSFXClips = new AudioClip[0];
@@ -33,13 +32,6 @@ public class AudioMan : MonoBehaviour
     //gets called in pauseman before the sliders get turned off
     public void InitializeAudio()
     {
-        if(GameObject.Find("MusicSlider") != null)
-        {
-            musicSlider = GameObject.Find("MusicSlider").GetComponent<Slider>();
-            sfxSlider = GameObject.Find("SFXSlider").GetComponent<Slider>();
-            musicSlider.value = PlayerPrefs.GetFloat("MusicVolume", 1);
-            sfxSlider.value = PlayerPrefs.GetFloat("EffectsVolume", 1);
-        }
         /* we dont have any audio right now so its commented out 
         //add player clips to dictionary
         PlayerAudioDict.Add(PlayerClipNames.CounterShock, playerSFXClips[0]);
@@ -67,7 +59,11 @@ public class AudioMan : MonoBehaviour
         OtherAudioDict.Add(OtherClipNames.Ding, otherSFXClips[0]);
         OtherAudioDict.Add(OtherClipNames.Explosion, otherSFXClips[1]);*/
     }
-
+    public void InitiateVolume(float musicValue, string volumeName, Slider slider)
+    {
+        audioMixer.SetFloat(volumeName, Mathf.Log10(musicValue) * 20);
+        slider.value = musicValue;
+    }
     //Functions that adjust the volume
     public void AdjustMusic(float musicValue)
     {

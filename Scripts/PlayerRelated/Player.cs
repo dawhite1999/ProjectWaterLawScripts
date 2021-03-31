@@ -113,6 +113,8 @@ public class Player : MonoBehaviour
     {
         if (disableInput == false)
         {
+            if (Input.GetKeyDown(KeyCode.Escape))
+                FindObjectOfType<PauseMan>().Pause();
             if (Input.GetKeyDown(attackButton)) { StartCoroutine(SwordSwing()); }
             if (Input.GetKeyDown(KeyCode.Mouse1))
             {

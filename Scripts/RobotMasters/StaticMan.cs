@@ -11,5 +11,6 @@
    public static int staminaLvl;
    public static int strengthLvl;
    public static int skillPoints;
-   public static bool[] spEarnCheck;
+   public static bool[] spEarnCheck = new bool[10];
+   public static float mouseSens;
 }

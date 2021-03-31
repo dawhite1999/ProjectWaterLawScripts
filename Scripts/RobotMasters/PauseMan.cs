@@ -7,20 +7,51 @@ public class PauseMan : MonoBehaviour, ILanguage
     public GameObject pauseMenu;
     public GameObject optionsScreen;
     public GameObject confirmLeave;
-    public GameObject moveList;
+    public Slider mouseSlider;
+    public Slider musicSlider;
+    public Slider sfxSlider;
     bool willPause = false;
     bool opDisplay = false;
     bool confirmDisplayOn = false;
-    bool movesOn = false;
-    CameraMovement cameraMovement;
     LanguageMan languageMan;
     public Text mouseSensText;
+    public GameObject[] buttons;
     private void Start()
     {
         GetComponentInChildren<AudioMan>().InitializeAudio();
         optionsScreen.SetActive(false);
-        cameraMovement = FindObjectOfType<CameraMovement>();
         languageMan = FindObjectOfType<LanguageMan>();
+        GetComponentInChildren<AudioMan>().InitiateVolume(PlayerPrefs.GetFloat("MusicVolume", 1), "BGMVolume", musicSlider);
+        GetComponentInChildren<AudioMan>().InitiateVolume(PlayerPrefs.GetFloat("EffectsVolume", 1), "SFXVolume", sfxSlider);
+        if(FindObjectOfType<CameraMovement>() != null)
+            FindObjectOfType<CameraMovement>().InitializeMouse();
+        //setting texts
+        foreach (GameObject item in buttons)
+        {
+            switch(item.name)
+            {
+                case "Resume":
+                    item.GetComponentInChildren<Text>().text = languageMan.SetMenuLanguage(LanguageMan.MenuUi.ContinueGame, EngOrJap());
+                    break;
+                case "Options":
+                    item.GetComponentInChildren<Text>().text = languageMan.SetMenuLanguage(LanguageMan.MenuUi.Options, EngOrJap());
+                    break;
+                case "Quit":
+                    item.GetComponentInChildren<Text>().text = languageMan.SetMenuLanguage(LanguageMan.MenuUi.Exit, EngOrJap());
+                    break;
+                case "Yes":
+                    item.GetComponentInChildren<Text>().text = languageMan.SetMenuLanguage(LanguageMan.MenuUi.Yes, EngOrJap());
+                    break;
+                case "No":
+                    item.GetComponentInChildren<Text>().text = languageMan.SetMenuLanguage(LanguageMan.MenuUi.No, EngOrJap());
+                    break;
+            }
+        }
+        confirmLeave.transform.GetChild(0).GetComponent<Text>().text = languageMan.SetMenuLanguage(LanguageMan.MenuUi.QuitConfirm, EngOrJap());
+        if (FindObjectOfType<TitleMan>() == null)
+            pauseMenu.SetActive(false);
+        else
+            optionsScreen.SetActive(false);
     }
     public void Pause()
     {
@@ -66,29 +97,16 @@ public class PauseMan : MonoBehaviour, ILanguage
         else
             confirmLeave.SetActive(false);
     }
-    public void DisplayMoveList()
-    {
-        movesOn = !movesOn;
-        if (movesOn == true)
-            moveList.SetActive(true);
-        else
-            moveList.SetActive(false);
-    }
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape))
-            Pause();
-    }
     public void LoadMain()
     {
+        Pause();
         FindObjectOfType<SceneMan>().LoadMainMenu();
     }
     public void AdjustMouse(float mouseValue)
     {
-        cameraMovement.mouseSensitity = mouseValue;
+        StaticMan.mouseSens = mouseValue;
         PlayerPrefs.SetFloat("MouseSensitivity", mouseValue);
     }
-
     public bool EngOrJap()
     {
         if (StaticMan.isEnglish == true)

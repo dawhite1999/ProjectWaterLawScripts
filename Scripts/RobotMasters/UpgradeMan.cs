@@ -615,4 +615,9 @@ public class UpgradeMan : MonoBehaviour, ILanguage
             return;
         statLvlHolder.skillPoints = StaticMan.skillPoints;
     }
+    public void AddSP(int sp)
+    {
+        statLvlHolder.skillPoints += sp;
+        skillPointText.text = languageMan.SetInGameSenetence(LanguageMan.InGameUI.SkillPoints, EngOrJap()) + " " + statLvlHolder.skillPoints;
+    }
 }
