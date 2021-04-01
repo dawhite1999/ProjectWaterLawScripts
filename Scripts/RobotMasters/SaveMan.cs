@@ -40,7 +40,6 @@ public static class SaveMan
         string path = Application.persistentDataPath + "/savedstats.law";
         if (File.Exists(path))
         {
-            FileStream stream = new FileStream(path, FileMode.Open);
             File.Delete(path);
         }
         else

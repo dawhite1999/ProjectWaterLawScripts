@@ -8,7 +8,7 @@ public class DebugMan : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.Alpha0))
         {
-
+            SaveMan.DeleteSave();
         }
         if (Input.GetKeyDown(KeyCode.Alpha9))
         {

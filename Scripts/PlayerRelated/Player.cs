@@ -228,8 +228,6 @@ public class Player : MonoBehaviour
     //called when you right click inside a next stage station
     void MoveToNextStage()
     {
-        //increase the number of stages completed
-        GetComponent<StatLvlHolder>().stagesComplete++;
         //disable input
         disableInput = true;
         FindObjectOfType<SceneMan>().LoadStage();

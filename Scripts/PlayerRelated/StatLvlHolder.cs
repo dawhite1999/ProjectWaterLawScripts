@@ -7,16 +7,15 @@ public class StatLvlHolder : MonoBehaviour
 {
     public bool isEng;
     public int stagesComplete;
-    public int gammaLevel;
-    public int radioLevel;
-    public int counterLevel;
-    public int injectionLevel;
-    public int roomLevel;
-    public int hPLevel;
-    public int staminaLevel;
-    public int strengthLevel;
+    public int gammaLevel = 1;
+    public int radioLevel = 1;
+    public int counterLevel = 1;
+    public int injectionLevel = 1;
+    public int roomLevel = 1;
+    public int hPLevel = 1;
+    public int staminaLevel = 1;
+    public int strengthLevel = 1;
     public int skillPoints;
-    public bool[] spEarnCheck;
     public void SaveScore()
     {
         SaveMan.SaveScore(this);
@@ -37,10 +36,30 @@ public class StatLvlHolder : MonoBehaviour
             StaticMan.staminaLvl = playerData.staminaLvl;
             StaticMan.strengthLvl = playerData.strengthLvl;
             StaticMan.skillPoints = playerData.skillPoints;
-            for (int i = 0; i < StaticMan.spEarnCheck.Length; i++)
-            {
-                StaticMan.spEarnCheck[i] = spEarnCheck[i];
-            }
         }
+        else
+        {
+            StaticMan.gammaLvl = 1;
+            StaticMan.radioLvl = 1;
+            StaticMan.counterLvl = 1;
+            StaticMan.injectionLvl = 1;
+            StaticMan.roomLvl = 1;
+            StaticMan.hpLvl = 1;
+            StaticMan.staminaLvl = 1;
+            StaticMan.strengthLvl = 1;
+        }
+    }
+    public void ResetProgress()
+    {
+        StaticMan.gammaLvl = 1;
+        StaticMan.radioLvl = 1;
+        StaticMan.counterLvl = 1;
+        StaticMan.injectionLvl = 1;
+        StaticMan.roomLvl = 1;
+        StaticMan.hpLvl = 1;
+        StaticMan.staminaLvl = 1;
+        StaticMan.strengthLvl = 1;
+        StaticMan.skillPoints = 0;
+        StaticMan.stagesComplete = 0;
     }
 }

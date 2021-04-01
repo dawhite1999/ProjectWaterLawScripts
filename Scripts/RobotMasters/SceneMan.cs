@@ -59,14 +59,14 @@ public class SceneMan : MonoBehaviour, ILanguage
         StaticMan.strengthLvl = 0;
         LoadStage();
     }
-    public void LoadNewGame()
-    {
-        StartCoroutine(SceneFade(true, "Tutorial"));
-    }
+
     public void LoadStage()
     {
         switch(StaticMan.stagesComplete)
         {
+            case 0:
+                StartCoroutine(SceneFade(true, "Tutorial"));
+                break;
             case 1:
                 StartCoroutine(SceneFade(true, "Level1"));
                 break;

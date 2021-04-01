@@ -25,10 +25,6 @@ public class TitleMan : MonoBehaviour, ILanguage
     bool tempLanguage = false;
     private void Awake()
     {
-        for (int i = 0; i < StaticMan.spEarnCheck.Length; i++)
-        {
-            StaticMan.spEarnCheck[i] = false;
-        }
         GetComponent<StatLvlHolder>().LoadSave();
     }
     // Start is called before the first frame update
@@ -126,7 +122,8 @@ public class TitleMan : MonoBehaviour, ILanguage
     public void NewGame()
     {
         SaveMan.DeleteSave();
-        sceneMan.LoadNewGame();
+        GetComponent<StatLvlHolder>().ResetProgress();
+        sceneMan.LoadStage();
     }
     public void AdjustMouse(float mouseValue)
     {

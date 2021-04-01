@@ -17,7 +17,6 @@ public class PlayerData
     public int staminaLvl;
     public int strengthLvl;
     public int skillPoints;
-    public bool[] spEarnCheck;
     public PlayerData(StatLvlHolder statLvlHolder)
     {
         isEng = statLvlHolder.isEng;
@@ -31,9 +30,5 @@ public class PlayerData
         staminaLvl = statLvlHolder.staminaLevel;
         strengthLvl = statLvlHolder.strengthLevel;
         skillPoints = statLvlHolder.skillPoints;
-        for (int i = 0; i < spEarnCheck.Length; i++)
-        {
-            spEarnCheck[i] = statLvlHolder.spEarnCheck[i];
-        }
     }
 }

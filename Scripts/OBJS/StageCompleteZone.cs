@@ -2,22 +2,30 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-public class SPEarner : MonoBehaviour, ILanguage
+public class StageCompleteZone : MonoBehaviour, ILanguage
 {
     public Text openText;
     public UpgradeMan upgradeMan;
     [SerializeField] int skillPoints = 0;
     LanguageMan languageMan;
-    [Header("This is to mark which bool in static man gets turned true. level 1 would be 1, etc...")]
+    [Header("This is to keep track of if you have beaten the stage already. level 1 would be 1, etc...")]
     [SerializeField] int earnerNum = 0;
+    bool enteredOnce = false;
+    private void Start()
+    {
+        if (FindObjectOfType<StatLvlHolder>().stagesComplete > earnerNum)
+            gameObject.SetActive(false);
+    }
     private void OnTriggerEnter(Collider other)
     {
-        if(other.GetComponent<Player>() != null && StaticMan.spEarnCheck[earnerNum] == false)
+        if(other.GetComponent<Player>() != null && enteredOnce == false)
         {
             languageMan = FindObjectOfType<LanguageMan>();
             upgradeMan.AddSP(skillPoints);
-            StaticMan.spEarnCheck[earnerNum] = true;
             StartCoroutine(SPEarn());
+            //increase the number of stages completed
+            FindObjectOfType<StatLvlHolder>().stagesComplete++;
+            enteredOnce = true;
         }
     }
     IEnumerator SPEarn()
