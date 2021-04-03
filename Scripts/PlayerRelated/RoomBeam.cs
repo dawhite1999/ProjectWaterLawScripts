@@ -17,6 +17,7 @@ public class RoomBeam : MonoBehaviour
     Player player;
     Room room;
     HypeMan hypeMan;
+    AudioMan audioMan;
     //variables
     [SerializeField] float launchForce = 0;
     bool isHolding = false;
@@ -48,6 +49,7 @@ public class RoomBeam : MonoBehaviour
         player = GetComponent<Player>();
         hypeMan = FindObjectOfType<HypeMan>();
         room = GetComponent<Room>();
+        audioMan = FindObjectOfType<AudioMan>();
         radioTimeCurr = radioTimeMax;
         radioCDCurr = radioCDMax;
         counterCDCurr = counterCDMax;
@@ -184,6 +186,7 @@ public class RoomBeam : MonoBehaviour
                 {
                     room.SetLockedRoom();
                     hypeMan.PHT("Shambles!");
+                    audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.Shambles);
                     player.animator.SetTrigger("isShambles");
                     itemToSwitch = roomRayHit.collider.gameObject;
                     tempShamblesLoc = new Vector3(itemToSwitch.transform.position.x, itemToSwitch.transform.position.y, itemToSwitch.transform.position.z);
@@ -214,17 +217,19 @@ public class RoomBeam : MonoBehaviour
     //player attack move, does damage based on how much health the player has
     IEnumerator CounterShock()
     {
-        if(counterUsed == false)
+        if(counterUsed == false && player.isAttacking == false)
         {
+            player.isAttacking = true;
             room.SetLockedRoom();
             player.animator.SetBool("isCounter", true);
             player.counterDamage = (player.maxHealth - player.currentHealth) / 10  * player.counterMultiplier;
             player.counterBackground.GetComponent<Image>().color = Color.yellow;
             player.sword.GetComponentInChildren<TrailRenderer>().emitting = true;
+            hypeMan.PHT("Counter Shock!");
+            audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.CounterShock);
             yield return new WaitForSeconds(player.counterStartUp);
             player.swordHitBox.GetComponent<AttackHitBox>().counterOn = true;
             player.swordHitBox.SetActive(true);
-            hypeMan.PHT("Counter Shock!");
             player.animator.SetBool("isCounter", false);
             yield return new WaitForSeconds(player.counterBoxActiveTime);
             player.swordHitBox.GetComponent<AttackHitBox>().counterOn = false;
@@ -232,6 +237,7 @@ public class RoomBeam : MonoBehaviour
             player.counterBackground.GetComponent<Image>().color = Color.white;
             player.sword.GetComponentInChildren<TrailRenderer>().emitting = false;
             counterUsed = true;
+            player.isAttacking = false;
         }
     }
     //launches a held obj
@@ -243,6 +249,7 @@ public class RoomBeam : MonoBehaviour
             player.animator.SetTrigger("isTakt");
             heldObject.GetComponent<InteractableObject>().beingLaunched = true;
             hypeMan.PHT("Takt!");
+            audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.Takt);
             heldObject.GetComponent<Rigidbody>().velocity = (rayDestination - roomBeamOrigin.transform.position) * launchForce;
             heldObject.GetComponent<InteractableObject>().InvokeRePickup();
             LetGo();
@@ -251,8 +258,9 @@ public class RoomBeam : MonoBehaviour
     //shoots a ray to do damage
     IEnumerator InjectionShot()
     {
-        if(injectionUsed == false)
+        if(injectionUsed == false && player.isAttacking == false)
         {
+            player.isAttacking = true;
             room.SetLockedRoom();
             Ray roomRay = roomBeamOrigin.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
             RaycastHit roomRayHit;
@@ -262,6 +270,7 @@ public class RoomBeam : MonoBehaviour
             yield return new WaitForSeconds(player.injectionStartUp);
             player.swordTip.transform.GetChild(0).gameObject.SetActive(true);
             hypeMan.PHT("Injection Shot!");
+            audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.InjectionShot);
             player.animator.SetBool("isInjection", false);
             if (Physics.Raycast(roomRay, out roomRayHit))
             {
@@ -281,8 +290,8 @@ public class RoomBeam : MonoBehaviour
             player.swordTip.transform.GetChild(0).gameObject.SetActive(false);
             injectionUsed = true;
             player.injectionBackground.GetComponent<Image>().color = Color.white;
+            player.isAttacking = false;
         }
-
     }
     //boosts strength for a small amout of time
     void RadioKnife(bool turnOn)
@@ -293,6 +302,7 @@ public class RoomBeam : MonoBehaviour
             player.radioBackground.GetComponent<Image>().color = Color.yellow;
             player.strength = player.strength + player.radioBonus;
             hypeMan.PHT("Radio Knife!");
+            audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.RadioKnife);
             foreach (Outline item in player.sword.GetComponentsInChildren<Outline>())
             {
                 item.enabled = true;
@@ -314,18 +324,20 @@ public class RoomBeam : MonoBehaviour
     //player attack
     IEnumerator GammaKnife()
     {
-        if(gammaUsed == false)
+        if(gammaUsed == false && player.isAttacking == false)
         {
+            player.isAttacking = true;
             room.SetLockedRoom();
             if (player.swordHitBox.activeSelf == true)
                 yield break;
             player.animator.SetBool("isGamma", true);
             player.gammaBackground.GetComponent<Image>().color = Color.yellow;
+            hypeMan.PHT("Gamma Knife!");
+            audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.GammaKnife);
             yield return new WaitForSeconds(player.attackStartUp);
             player.swordHitBox.GetComponent<AttackHitBox>().gammaOn = true;
             player.sword.GetComponentInChildren<TrailRenderer>().emitting = true;
             player.swordHitBox.SetActive(true);
-            hypeMan.PHT("Gamma Knife!");
             player.animator.SetBool("isGamma", false);
             yield return new WaitForSeconds(player.hitBoxActiveTime);
             player.swordHitBox.GetComponent<AttackHitBox>().gammaOn = false;
@@ -333,6 +345,7 @@ public class RoomBeam : MonoBehaviour
             player.gammaBackground.GetComponent<Image>().color = Color.white;
             player.sword.GetComponentInChildren<TrailRenderer>().emitting = false;
             gammaUsed = true;
+            player.isAttacking = false;
         }
     }
     //called when holding the shambles button
@@ -371,6 +384,7 @@ public class RoomBeam : MonoBehaviour
         itemToSwitch1.transform.position = new Vector3(itemToSwitch2.transform.position.x, itemToSwitch2.transform.position.y + 2, itemToSwitch2.transform.position.z);
         itemToSwitch2.transform.position = tempItemsShamblesLoc;
         hypeMan.PHT("Shambles!");
+        audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.Shambles);
         if (isHolding == true)
             LetGo();
         RefreshShamblesVars();

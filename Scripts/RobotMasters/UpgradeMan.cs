@@ -14,6 +14,7 @@ public class UpgradeMan : MonoBehaviour, ILanguage
     Player player;
     RoomBeam roomBeam;
     Room room;
+    AudioMan audioMan;
     LanguageMan languageMan;
     StatLvlHolder statLvlHolder;
     enum NextLevelStats { CoolDown, DamageBonus }
@@ -42,6 +43,7 @@ public class UpgradeMan : MonoBehaviour, ILanguage
         room = FindObjectOfType<Room>();
         roomBeam = FindObjectOfType<RoomBeam>();
         languageMan = FindObjectOfType<LanguageMan>();
+        audioMan = FindObjectOfType<AudioMan>();
         statLvlHolder = FindObjectOfType<StatLvlHolder>();
         SetLanguage();
     }
@@ -282,7 +284,11 @@ public class UpgradeMan : MonoBehaviour, ILanguage
             if (statLvlHolder.roomLevel + 1 > roomCap)
                 nextLvlDescText.text = "Max level reached";
             else
-                nextLvlDescText.text = "Next Level Stats" + "\n" + "Lvl " + statLvlHolder.roomLevel + "\n" + "Damage Threshold " + RoomNL(statLvlHolder.roomLevel + 1, NLRoomStats.DamageThreshold) + "m" + "\n" + "Expand Rate " + RoomNL(statLvlHolder.roomLevel + 1, NLRoomStats.ExpandRate) + "\n" + "Room Active Time " + RoomNL(statLvlHolder.roomLevel + 1, NLRoomStats.RoomActive) + "s";
+            {
+                displayedLevel = statLvlHolder.roomLevel + 1;
+                nextLvlDescText.text = "Next Level Stats" + "\n" + "Lvl " + displayedLevel + "\n" + "Damage Threshold " + RoomNL(displayedLevel, NLRoomStats.DamageThreshold) + "m" + "\n" + "Expand Rate " + RoomNL(displayedLevel, NLRoomStats.ExpandRate) + "\n" + "Room Active Time " + RoomNL(displayedLevel, NLRoomStats.RoomActive) + "s";
+            }
+                
         }
     }
     void DisplayStrength()
@@ -558,6 +564,7 @@ public class UpgradeMan : MonoBehaviour, ILanguage
                     StaticMan.gammaLvl = statLvlHolder.gammaLevel;
                     ChangeGMAStats();
                     DisplayGamma();
+                    audioMan.PlayOtherClip(AudioMan.OtherClipNames.Blip);
                 }
                 break;
             case "RadioKnifeUp":
@@ -567,6 +574,7 @@ public class UpgradeMan : MonoBehaviour, ILanguage
                    StaticMan.radioLvl = statLvlHolder.radioLevel;
                    ChangeRDOStats();
                     DisplayRadio();
+                    audioMan.PlayOtherClip(AudioMan.OtherClipNames.Blip);
                 }
                 break;
             case "InjectionShotUp":
@@ -576,6 +584,7 @@ public class UpgradeMan : MonoBehaviour, ILanguage
                     StaticMan.injectionLvl = statLvlHolder.injectionLevel;
                     ChangeINJStats();
                     DisplayInj();
+                    audioMan.PlayOtherClip(AudioMan.OtherClipNames.Blip);
                 }
                 break;
             case "CounterShockUp":
@@ -585,6 +594,7 @@ public class UpgradeMan : MonoBehaviour, ILanguage
                     StaticMan.counterLvl = statLvlHolder.counterLevel;
                     ChangeCTRStats();
                     DisplayCounter();
+                    audioMan.PlayOtherClip(AudioMan.OtherClipNames.Blip);
                 }
                 break;
             case "RoomUp":
@@ -594,6 +604,7 @@ public class UpgradeMan : MonoBehaviour, ILanguage
                     StaticMan.roomLvl = statLvlHolder.roomLevel;
                     ChangeRMStats();
                     DisplayRoom();
+                    audioMan.PlayOtherClip(AudioMan.OtherClipNames.Blip);
                 }
                 break;
             case "HitPointsUp":
@@ -603,6 +614,7 @@ public class UpgradeMan : MonoBehaviour, ILanguage
                     StaticMan.hpLvl = statLvlHolder.hPLevel;
                     ChangeHPStats();
                     DisplayHP();
+                    audioMan.PlayOtherClip(AudioMan.OtherClipNames.Blip);
                 }
                 break;
             case "StaminaUp":
@@ -612,6 +624,7 @@ public class UpgradeMan : MonoBehaviour, ILanguage
                     StaticMan.staminaLvl = statLvlHolder.staminaLevel;
                     ChangeSTMStats();
                     DisplayStamina();
+                    audioMan.PlayOtherClip(AudioMan.OtherClipNames.Blip);
                 }
                 break;
             case "StrengthUp":
@@ -621,6 +634,7 @@ public class UpgradeMan : MonoBehaviour, ILanguage
                     StaticMan.strengthLvl = statLvlHolder.strengthLevel;
                     ChangeSTRStats();
                     DisplayStrength();
+                    audioMan.PlayOtherClip(AudioMan.OtherClipNames.Blip);
                 }
                 break;
         }
@@ -718,10 +732,12 @@ public class UpgradeMan : MonoBehaviour, ILanguage
     {
         statLvlHolder.SaveScore();
         StartCoroutine(DisplayEvent(languageMan.SetInGameSenetence(LanguageMan.InGameUI.SaveStatus, EngOrJap())));
+        audioMan.PlayOtherClip(AudioMan.OtherClipNames.Blip);
     }
     //called by exit button
     public void ExitScreen()
     {
+        audioMan.PlayOtherClip(AudioMan.OtherClipNames.Blip);
         saveScreen.SetActive(false);
     }
 }

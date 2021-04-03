@@ -19,6 +19,7 @@ public class TitleMan : MonoBehaviour, ILanguage
     [SerializeField] Button[] uiButtons = new Button[0];
     SceneMan sceneMan;
     LanguageMan languageMan;
+    AudioMan audioMan;
     bool opDisplay = false;
     bool confirmDisplayOn = false;
     bool confirmNGDisplayOn = false;
@@ -31,14 +32,15 @@ public class TitleMan : MonoBehaviour, ILanguage
     void Start()
     {
         //find stuff
-        FindObjectOfType<AudioMan>().InitializeAudio();
+        audioMan = FindObjectOfType<AudioMan>();
+        audioMan.InitializeAudio();
         sceneMan = FindObjectOfType<SceneMan>();
         //FindObjectOfType<AudioMan>().PlayBGM(AudioMan.BGMClipNames.Title);
         languageMan = FindObjectOfType<LanguageMan>();
         tempLanguage = StaticMan.isEnglish;
         SetUiText();
-        FindObjectOfType<AudioMan>().InitiateVolume(PlayerPrefs.GetFloat("MusicVolume", 1), "BGMVolume", musicSlider);
-        FindObjectOfType<AudioMan>().InitiateVolume(PlayerPrefs.GetFloat("EffectsVolume", 1), "SFXVolume", sfxSlider);
+        audioMan.InitiateVolume(PlayerPrefs.GetFloat("MusicVolume", 1), "BGMVolume", musicSlider);
+        audioMan.InitiateVolume(PlayerPrefs.GetFloat("EffectsVolume", 1), "SFXVolume", sfxSlider);
         StaticMan.mouseSens = PlayerPrefs.GetFloat("MouseSensitivity", 100);
         mouseSlider.value = StaticMan.mouseSens;
         //turn stuff off
@@ -62,6 +64,7 @@ public class TitleMan : MonoBehaviour, ILanguage
         {
             sceneMan.LoadMainMenu();
         }
+        audioMan.PlayOtherClip(AudioMan.OtherClipNames.Blip);
     }
     public void ConfirmLeave()
     {
@@ -70,6 +73,7 @@ public class TitleMan : MonoBehaviour, ILanguage
             confirmLeave.SetActive(true);
         else
             confirmLeave.SetActive(false);
+        audioMan.PlayOtherClip(AudioMan.OtherClipNames.Blip);
     }
     public void Leave()
     {
@@ -110,6 +114,7 @@ public class TitleMan : MonoBehaviour, ILanguage
         if (StaticMan.stagesComplete == 0)
             StartCoroutine(DisplayError());
         else sceneMan.LoadStage();
+        audioMan.PlayOtherClip(AudioMan.OtherClipNames.Blip);
     }
     public void ConfirmNewGame()
     {
@@ -118,12 +123,14 @@ public class TitleMan : MonoBehaviour, ILanguage
             confirmNGLeave.SetActive(true);
         else
             confirmNGLeave.SetActive(false);
+        audioMan.PlayOtherClip(AudioMan.OtherClipNames.Blip);
     }
     public void NewGame()
     {
         SaveMan.DeleteSave();
         GetComponent<StatLvlHolder>().ResetProgress();
         sceneMan.LoadStage();
+        audioMan.PlayOtherClip(AudioMan.OtherClipNames.Blip);
     }
     public void AdjustMouse(float mouseValue)
     {

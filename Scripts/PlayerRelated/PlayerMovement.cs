@@ -38,9 +38,12 @@ public class PlayerMovement : MonoBehaviour
                 velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             velocity.y += gravity * Time.deltaTime;
             controller.Move(velocity * Time.deltaTime);
-
             //Running
-            if (Input.GetKey(KeyCode.W) && Input.GetKey(KeyCode.LeftShift) && isGrounded == true ){ currSpeed = runSpeed; isSprinting = true; }
+            if (Input.GetKey(KeyCode.W) && Input.GetKey(KeyCode.LeftShift) && isGrounded == true )
+            {
+                currSpeed = runSpeed;
+                isSprinting = true;
+            }
             if (Input.GetKeyUp(KeyCode.LeftShift))
             {
                 isSprinting = false;

@@ -14,15 +14,18 @@ public class Room : MonoBehaviour
     [HideInInspector] public float roomTimeActiveCurr;
     bool roomLocked = false;
     bool playOnce = false;
+    int roomSFXIndex;
     Player player;
     HypeMan hypeMan;
     RoomBeam roomBeam;
+    AudioMan audioMan;
     // Start is called before the first frame update
     void Start()
     {
         player = GetComponent<Player>();
         hypeMan = FindObjectOfType<HypeMan>();
         roomBeam = GetComponent<RoomBeam>();
+        audioMan = FindObjectOfType<AudioMan>();
         roomHolder = GameObject.Find("RoomHolder");
         room = GameObject.Find("Room");
         room.SetActive(false);
@@ -41,17 +44,13 @@ public class Room : MonoBehaviour
             {
                 if (room.activeSelf == false)
                 {
-                    room.SetActive(true);
-                    hypeMan.PHT("Room");
-                    player.animator.SetBool("roomExpanding", true);
-                    player.UseStamina();
+                    StartRoom();
                     return;
                 }
                 else
                 {
                     CancelRoom();
-                    room.SetActive(true);
-                    player.UseStamina();
+                    StartRoom();
                 }
             }
             if (Input.GetKey(RoomButton))
@@ -74,6 +73,15 @@ public class Room : MonoBehaviour
             if (roomTimeActiveCurr <= 0)
                 CancelRoom();
         }
+    }
+    //creates room
+    void StartRoom()
+    {
+        room.SetActive(true);
+        hypeMan.PHT("Room");
+        StartCoroutine(PlayRoomSounds());
+        player.animator.SetBool("roomExpanding", true);
+        player.UseStamina();
     }
     //grows the room
     void ExpandRoom()
@@ -99,6 +107,8 @@ public class Room : MonoBehaviour
         roomLocked = true;
         playOnce = false;
         player.animator.SetBool("roomExpanding", false);
+        if(roomSFXIndex != 0)
+            audioMan.Stop1RePlayerSFX(roomSFXIndex);
     }
     //turns the room off
     public void CancelRoom()
@@ -118,5 +128,15 @@ public class Room : MonoBehaviour
         roomLocked = false;
         playOnce = false;
         room.SetActive(false);
+    }
+    IEnumerator PlayRoomSounds()
+    {
+        audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.RoomStart);
+        yield return new WaitForSeconds(.6f);
+        if (roomLocked == true)
+            yield break;
+        audioMan.PlayPlayerRepeatSound(AudioMan.PlayerClipNames.RoomLoop);
+        //this saved so that we can cancel the correct sfx when we stop growing the room.
+        roomSFXIndex = audioMan.GetIndexNum();
     }
 }

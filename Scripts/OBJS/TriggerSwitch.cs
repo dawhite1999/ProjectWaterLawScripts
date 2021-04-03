@@ -5,8 +5,8 @@ using UnityEngine;
 public class TriggerSwitch : DefaultSwitch
 {
     public GameObject switchGFX;
-    [SerializeField] enum SwitchType { Sphere, Box}
-    [SerializeField] SwitchType switchType;
+    public enum SwitchType { Sphere, Box}
+    public SwitchType switchType;
 
     protected override void Start()
     {

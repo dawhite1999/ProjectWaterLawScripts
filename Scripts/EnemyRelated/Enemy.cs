@@ -5,7 +5,6 @@ using UnityEngine.AI;
 public class Enemy : MonoBehaviour
 {
     //varibales
-    public string model;
     public float maxHealth;
     public float defense = 0.9f;
     public float walkSpeed;
@@ -20,6 +19,9 @@ public class Enemy : MonoBehaviour
     [HideInInspector] public List<EnemyStates> EnemyStateList = new List<EnemyStates>();
     protected float attackTimeCounter;
     public EnemyStates currentState = EnemyStates.Pursuit;
+    public Model modelName;
+    public enum Model { Normal, Ranged, Small, Big, Controller }
+    public enum EnemyStates { Attacking, Pursuit, Stunned, Exploding }
     //references
     public GameObject hitParticles;
     public GameObject explodeParticles;
@@ -32,13 +34,6 @@ public class Enemy : MonoBehaviour
     protected EnemyCounter enemyCounter;
     protected NavMeshAgent navMeshAgent;
 
-    public enum EnemyStates
-    {
-        Attacking,
-        Pursuit,
-        Stunned,
-        Exploding
-    }
     //called to set a new state
     public void SetState(EnemyStates newState)
     {
@@ -172,6 +167,7 @@ public class Enemy : MonoBehaviour
         animator.SetBool("isExploded", true);
         yield return new WaitForSeconds(koAnimTime);
         explodeParticles.SetActive(true);
+        audioMan.PlayOtherClip(AudioMan.OtherClipNames.Explosion);
         GetComponent<RoomChecker>().inRoom = false;
         if (FindObjectOfType<RoomHitBox>() != null)
             FindObjectOfType<RoomHitBox>().objsInRoom.Remove(gameObject);

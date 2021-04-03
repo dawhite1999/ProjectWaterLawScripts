@@ -9,9 +9,9 @@ public class AudioMan : MonoBehaviour
     //references
     public AudioMixer audioMixer;
     [SerializeField] AudioSource musicManager = new AudioSource();
-    [SerializeField] AudioSource[] playerSFXSources = new AudioSource[4];
-    [SerializeField] AudioSource[] enemySFXSources = new AudioSource[4];
-    [SerializeField] AudioSource[] otherSFXSources = new AudioSource[4];
+    [SerializeField] List<AudioSource> playerSFXSources = new List<AudioSource>(4);
+    [SerializeField] List<AudioSource> enemySFXSources = new List<AudioSource>(4);
+    [SerializeField] List<AudioSource> otherSFXSources = new List<AudioSource>(4);
 
     //clips
     [SerializeField] AudioClip[] bgmClips = new AudioClip[0];
@@ -24,40 +24,53 @@ public class AudioMan : MonoBehaviour
     Dictionary<BGMClipNames, AudioClip> BGMAudioDict = new Dictionary<BGMClipNames, AudioClip>();
     Dictionary<OtherClipNames, AudioClip> OtherAudioDict = new Dictionary<OtherClipNames, AudioClip>();
     //clip names
-    public enum PlayerClipNames { Room, Takt, InjectionShot, CounterShock, GammaKnife, Shambles, RadioKnife, Walk, Run, Jump, Slice}
-    public enum EnemyClipNames {Shoot, HitPlayer, KO, Stun }
+    public enum PlayerClipNames { RoomStart, RoomLoop, Takt, InjectionShot, CounterShock, GammaKnife, Shambles, RadioKnife, Walk, Run, SmallClash1, SmallClash2, SmallClash3, SmallClash4, MediumClash1, MediumClash2, BigClash, Swoosh}
+    public enum EnemyClipNames {Shoot, BigHit1, BigHit2, MediumHit1, MediumHit2, SmallHit1, SmallHit2, KO, Stun }
     public enum BGMClipNames { Title, Menu, World, Boss}
-    public enum OtherClipNames {Explosion, Ding }
+    public enum OtherClipNames {Explosion, Blip }
 
+    //variables
+    int indexNum;
     //gets called in pauseman before the sliders get turned off
     public void InitializeAudio()
     {
-        /* we dont have any audio right now so its commented out 
         //add player clips to dictionary
-        PlayerAudioDict.Add(PlayerClipNames.CounterShock, playerSFXClips[0]);
-        PlayerAudioDict.Add(PlayerClipNames.GammaKnife, playerSFXClips[1]);
-        PlayerAudioDict.Add(PlayerClipNames.InjectionShot, playerSFXClips[2]);
-        PlayerAudioDict.Add(PlayerClipNames.Jump, playerSFXClips[3]);
-        PlayerAudioDict.Add(PlayerClipNames.RadioKnife, playerSFXClips[4]);
-        PlayerAudioDict.Add(PlayerClipNames.Room, playerSFXClips[5]);
-        PlayerAudioDict.Add(PlayerClipNames.Run, playerSFXClips[6]);
-        PlayerAudioDict.Add(PlayerClipNames.Shambles, playerSFXClips[7]);
-        PlayerAudioDict.Add(PlayerClipNames.Slice, playerSFXClips[8]);
-        PlayerAudioDict.Add(PlayerClipNames.Takt, playerSFXClips[9]);
-        PlayerAudioDict.Add(PlayerClipNames.Walk, playerSFXClips[10]);
+        PlayerAudioDict.Add(PlayerClipNames.SmallClash1, playerSFXClips[0]);
+        PlayerAudioDict.Add(PlayerClipNames.SmallClash2, playerSFXClips[1]);
+        PlayerAudioDict.Add(PlayerClipNames.SmallClash3, playerSFXClips[2]);
+        PlayerAudioDict.Add(PlayerClipNames.SmallClash4, playerSFXClips[3]);
+        PlayerAudioDict.Add(PlayerClipNames.MediumClash1, playerSFXClips[4]);
+        PlayerAudioDict.Add(PlayerClipNames.MediumClash2, playerSFXClips[5]);
+        PlayerAudioDict.Add(PlayerClipNames.BigClash, playerSFXClips[6]);
+        PlayerAudioDict.Add(PlayerClipNames.Swoosh, playerSFXClips[7]);
+        PlayerAudioDict.Add(PlayerClipNames.Takt, playerSFXClips[8]);
+        PlayerAudioDict.Add(PlayerClipNames.CounterShock, playerSFXClips[9]);
+        PlayerAudioDict.Add(PlayerClipNames.Run, playerSFXClips[10]);
+        PlayerAudioDict.Add(PlayerClipNames.Walk, playerSFXClips[11]);
+        PlayerAudioDict.Add(PlayerClipNames.RoomStart, playerSFXClips[12]);
+        PlayerAudioDict.Add(PlayerClipNames.RoomLoop, playerSFXClips[13]);
+        PlayerAudioDict.Add(PlayerClipNames.Shambles, playerSFXClips[14]);
+        PlayerAudioDict.Add(PlayerClipNames.RadioKnife, playerSFXClips[15]);
+        PlayerAudioDict.Add(PlayerClipNames.GammaKnife, playerSFXClips[16]);
+        PlayerAudioDict.Add(PlayerClipNames.InjectionShot, playerSFXClips[17]);
         //add enemy clips to dictionary
-        EnemyAudioDict.Add(EnemyClipNames.HitPlayer, enemySFXClips[0]);
-        EnemyAudioDict.Add(EnemyClipNames.KO, enemySFXClips[1]);
-        EnemyAudioDict.Add(EnemyClipNames.Shoot, enemySFXClips[2]);
-        EnemyAudioDict.Add(EnemyClipNames.Stun, enemySFXClips[3]);
+        EnemyAudioDict.Add(EnemyClipNames.BigHit1, enemySFXClips[0]);
+        EnemyAudioDict.Add(EnemyClipNames.BigHit2, enemySFXClips[1]);
+        EnemyAudioDict.Add(EnemyClipNames.MediumHit2, enemySFXClips[2]);
+        EnemyAudioDict.Add(EnemyClipNames.MediumHit1, enemySFXClips[3]);
+        EnemyAudioDict.Add(EnemyClipNames.SmallHit2, enemySFXClips[4]);
+        EnemyAudioDict.Add(EnemyClipNames.SmallHit1, enemySFXClips[5]);
+        //EnemyAudioDict.Add(EnemyClipNames.KO, enemySFXClips[1]);
+        //EnemyAudioDict.Add(EnemyClipNames.Shoot, enemySFXClips[2]);
+        //EnemyAudioDict.Add(EnemyClipNames.Stun, enemySFXClips[3]);
         //add bgm clips to the dictionary
-        BGMAudioDict.Add(BGMClipNames.Boss, bgmClips[0]);
-        BGMAudioDict.Add(BGMClipNames.Menu, bgmClips[1]);
-        BGMAudioDict.Add(BGMClipNames.Title, bgmClips[2]);
-        BGMAudioDict.Add(BGMClipNames.World, bgmClips[3]);
+        //BGMAudioDict.Add(BGMClipNames.Boss, bgmClips[0]);
+        //BGMAudioDict.Add(BGMClipNames.Menu, bgmClips[1]);
+        //BGMAudioDict.Add(BGMClipNames.Title, bgmClips[2]);
+        //BGMAudioDict.Add(BGMClipNames.World, bgmClips[3]);
         //add other sounds to the dictionary
-        OtherAudioDict.Add(OtherClipNames.Ding, otherSFXClips[0]);
-        OtherAudioDict.Add(OtherClipNames.Explosion, otherSFXClips[1]);*/
+        OtherAudioDict.Add(OtherClipNames.Blip, otherSFXClips[0]);
+        OtherAudioDict.Add(OtherClipNames.Explosion, otherSFXClips[1]);
     }
     public void InitiateVolume(float musicValue, string volumeName, Slider slider)
     {
@@ -91,7 +104,7 @@ public class AudioMan : MonoBehaviour
     //Stopping and starting clips
     public void TestSFX()
     {
-        PlayOtherClip(OtherClipNames.Ding);
+        PlayOtherClip(OtherClipNames.Blip);
     }
     public void StopMusic()
     {
@@ -111,6 +124,11 @@ public class AudioMan : MonoBehaviour
         {
             source.Stop();
         }
+    }
+    public void Stop1RePlayerSFX(int index)
+    {
+        playerSFXSources[index].Stop();
+        playerSFXSources[index].loop = false;
     }
     public void PauseAllSFX()
     {
@@ -134,6 +152,11 @@ public class AudioMan : MonoBehaviour
         {
             if (source.isPlaying == false)
             {
+                source.pitch = 1;
+                if (clipName == PlayerClipNames.Swoosh)
+                {
+                    source.pitch = Random.Range(0.9f, 1.2f);
+                }
                 source.clip = PlayerAudioDict[clipName];
                 source.Play();
                 return;
@@ -150,10 +173,10 @@ public class AudioMan : MonoBehaviour
     {
         if (clipName == PlayerClipNames.Walk || clipName == PlayerClipNames.Run)
         {
-            if(playerSFXSources[playerSFXSources.Length - 1].isPlaying == false)
+            if(playerSFXSources[playerSFXSources.Count - 1].isPlaying == false)
             {
-                playerSFXSources[playerSFXSources.Length - 1].clip = PlayerAudioDict[clipName];
-                playerSFXSources[playerSFXSources.Length - 1].pitch = Random.Range(0.9f, 1.1f);
+                playerSFXSources[playerSFXSources.Count - 1].clip = PlayerAudioDict[clipName];
+                playerSFXSources[playerSFXSources.Count - 1].pitch = Random.Range(0.9f, 1.1f);
             }
             return;
         }
@@ -164,6 +187,8 @@ public class AudioMan : MonoBehaviour
                 source.clip = PlayerAudioDict[clipName];
                 source.loop = true;
                 source.Play();
+                //this is saved so that when the sfx needs to be stopped, whatever is stopping it can find the correct index
+                indexNum = playerSFXSources.IndexOf(source);
                 return;
             }
         }
@@ -192,4 +217,5 @@ public class AudioMan : MonoBehaviour
             }
         }
     }
+    public int GetIndexNum() { return indexNum; }
 }

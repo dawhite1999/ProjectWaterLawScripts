@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
 public class Player : MonoBehaviour
 {
-
     //variables
     [Header("Stats")]
     public float maxHealth;
@@ -22,6 +20,7 @@ public class Player : MonoBehaviour
     public float radioBonus = 0;
     public float gammaBonus = 0;
     public float counterMultiplier = 1.5f;
+    public bool isAttacking = false;
     [SerializeField] float staminaRecoveryRate = 0;
     [HideInInspector] public float counterDamage = 0;
     [Header("References")]
@@ -30,7 +29,7 @@ public class Player : MonoBehaviour
     public GameObject swordTip;
     [HideInInspector] public Slider healthBar;
     [HideInInspector] public Slider staminaBar;
-    AudioMan audioMan;
+    [HideInInspector] public AudioMan audioMan;
     [HideInInspector] public Animator animator;
     [HideInInspector] public GameObject radioBackground;
     [HideInInspector] public GameObject gammaBackground;
@@ -84,6 +83,12 @@ public class Player : MonoBehaviour
     //Gets the levels from static man and changes the stats according to the levels
     void InitiateStats()
     {
+        //this is here just so the stats dont get changed when you are in the sample scene
+        if (GameObject.Find("TestZone") != null)
+        {
+            GameObject.Find("SaveScreen").SetActive(false);
+            return;
+        }
         StatLvlHolder statHolder = GetComponent<StatLvlHolder>();
         UpgradeMan upgradeMan = FindObjectOfType<UpgradeMan>();
         //get the levels
@@ -182,20 +187,24 @@ public class Player : MonoBehaviour
     //called when the player hits the attack button, this will turn the attack hit box on while playing an animation
     IEnumerator SwordSwing()
     {
-        attackRight = !attackRight;
-        if (swordHitBox.activeSelf == true)
-            yield break;
-        if(attackRight == true) { animator.SetInteger("attackType", 1); }
-        else { animator.SetInteger("attackType", 2); }
-        sword.GetComponentInChildren<TrailRenderer>().emitting = true;
-        yield return new WaitForSeconds(attackStartUp);
-        animator.SetInteger("attackType", 0);
-        swordHitBox.SetActive(true);
-        yield return new WaitForSeconds(hitBoxActiveTime);
-        swordHitBox.SetActive(false);
-        sword.GetComponentInChildren<TrailRenderer>().emitting = false;
-        if (swordHitBox.transform.GetChild(0).gameObject.activeSelf == true)
-            swordHitBox.transform.GetChild(0).gameObject.SetActive(false);
+        if(isAttacking == false)
+        {
+            isAttacking = true;
+            attackRight = !attackRight;
+            if (attackRight == true) { animator.SetInteger("attackType", 1); }
+            else { animator.SetInteger("attackType", 2); }
+            sword.GetComponentInChildren<TrailRenderer>().emitting = true;
+            yield return new WaitForSeconds(attackStartUp);
+            audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.Swoosh);
+            animator.SetInteger("attackType", 0);
+            swordHitBox.SetActive(true);
+            yield return new WaitForSeconds(hitBoxActiveTime);
+            swordHitBox.SetActive(false);
+            sword.GetComponentInChildren<TrailRenderer>().emitting = false;
+            if (swordHitBox.transform.GetChild(0).gameObject.activeSelf == true)
+                swordHitBox.transform.GetChild(0).gameObject.SetActive(false);
+            isAttacking = false;
+        }
     }
     //called when hp hits 0
     IEnumerator Death()

@@ -18,7 +18,7 @@ public class EnemySpawner : MonoBehaviour
         {
             foreach (GameObject boi in enemies)
             {
-                if (enemy.GetComponent<Enemy>().model == boi.GetComponent<Enemy>().model)
+                if (enemy.GetComponent<Enemy>().modelName == boi.GetComponent<Enemy>().modelName)
                 {
                     CreateEnemy(boi);
                     break;
@@ -29,9 +29,9 @@ public class EnemySpawner : MonoBehaviour
         {
             foreach (GameObject boi in enemies)
             {
-                if (enemy.GetComponent<Enemy>().model == boi.GetComponent<Enemy>().model)
+                if (enemy.GetComponent<Enemy>().modelName == boi.GetComponent<Enemy>().modelName)
                 {
-                    AddEnemiesToSpawn(enemy.GetComponent<Enemy>().model);
+                    AddEnemiesToSpawn(enemy.GetComponent<Enemy>().modelName);
                     break;
                 }
             }
@@ -39,20 +39,20 @@ public class EnemySpawner : MonoBehaviour
 
     }
     //add an amount of enemies to spawn
-    void AddEnemiesToSpawn(string enemyModel)
+    void AddEnemiesToSpawn(Enemy.Model model)
     {
-        switch(enemyModel)
+        switch(model)
         {
-            case "normal":
+            case Enemy.Model.Normal:
                 spawnNormal = true;
                 break;
-            case "range":
+            case Enemy.Model.Ranged:
                 spawnRange = true;
                 break;
-            case "big":
+            case Enemy.Model.Big:
                 spawnBig = true;
                 break;
-            case "small":
+            case Enemy.Model.Small:
                 spawnSmall = true;
                 break;
         }
