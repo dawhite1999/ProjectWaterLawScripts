@@ -10,7 +10,6 @@ public class AudioMan : MonoBehaviour
     public AudioMixer audioMixer;
     [SerializeField] AudioSource musicManager = new AudioSource();
     [SerializeField] List<AudioSource> playerSFXSources = new List<AudioSource>(4);
-    [SerializeField] List<AudioSource> enemySFXSources = new List<AudioSource>(4);
     [SerializeField] List<AudioSource> otherSFXSources = new List<AudioSource>(4);
 
     //clips
@@ -24,42 +23,47 @@ public class AudioMan : MonoBehaviour
     Dictionary<BGMClipNames, AudioClip> BGMAudioDict = new Dictionary<BGMClipNames, AudioClip>();
     Dictionary<OtherClipNames, AudioClip> OtherAudioDict = new Dictionary<OtherClipNames, AudioClip>();
     //clip names
-    public enum PlayerClipNames { RoomStart, RoomLoop, Takt, InjectionShot, CounterShock, GammaKnife, Shambles, RadioKnife, Walk, Run, SmallClash1, SmallClash2, SmallClash3, SmallClash4, MediumClash1, MediumClash2, BigClash, Swoosh}
-    public enum EnemyClipNames {Shoot, BigHit1, BigHit2, MediumHit1, MediumHit2, SmallHit1, SmallHit2, KO, Stun }
+    public enum PlayerClipNames { RoomStart, RoomLoop, Takt, InjectionShot, CounterShock, GammaKnife, Shambles, RadioKnife, Walk, Run, BigHit1, BigHit2, MediumHit1, MediumHit2, SmallHit1, SmallHit2, Swoosh }
+    public enum EnemyClipNames {Shoot,  KO, Stun, SmallClash1, SmallClash2, SmallClash3, SmallClash4, MediumClash1, MediumClash2, BigClash, Explosion2, }
     public enum BGMClipNames { Title, Menu, World, Boss}
     public enum OtherClipNames {Explosion, Blip }
 
     //variables
     int indexNum;
+    float exposedVolume;
+
+    public float GetEXVolume() { return exposedVolume; }
     //gets called in pauseman before the sliders get turned off
     public void InitializeAudio()
     {
         //add player clips to dictionary
-        PlayerAudioDict.Add(PlayerClipNames.SmallClash1, playerSFXClips[0]);
-        PlayerAudioDict.Add(PlayerClipNames.SmallClash2, playerSFXClips[1]);
-        PlayerAudioDict.Add(PlayerClipNames.SmallClash3, playerSFXClips[2]);
-        PlayerAudioDict.Add(PlayerClipNames.SmallClash4, playerSFXClips[3]);
-        PlayerAudioDict.Add(PlayerClipNames.MediumClash1, playerSFXClips[4]);
-        PlayerAudioDict.Add(PlayerClipNames.MediumClash2, playerSFXClips[5]);
-        PlayerAudioDict.Add(PlayerClipNames.BigClash, playerSFXClips[6]);
-        PlayerAudioDict.Add(PlayerClipNames.Swoosh, playerSFXClips[7]);
-        PlayerAudioDict.Add(PlayerClipNames.Takt, playerSFXClips[8]);
-        PlayerAudioDict.Add(PlayerClipNames.CounterShock, playerSFXClips[9]);
-        PlayerAudioDict.Add(PlayerClipNames.Run, playerSFXClips[10]);
-        PlayerAudioDict.Add(PlayerClipNames.Walk, playerSFXClips[11]);
-        PlayerAudioDict.Add(PlayerClipNames.RoomStart, playerSFXClips[12]);
-        PlayerAudioDict.Add(PlayerClipNames.RoomLoop, playerSFXClips[13]);
-        PlayerAudioDict.Add(PlayerClipNames.Shambles, playerSFXClips[14]);
-        PlayerAudioDict.Add(PlayerClipNames.RadioKnife, playerSFXClips[15]);
-        PlayerAudioDict.Add(PlayerClipNames.GammaKnife, playerSFXClips[16]);
-        PlayerAudioDict.Add(PlayerClipNames.InjectionShot, playerSFXClips[17]);
+        PlayerAudioDict.Add(PlayerClipNames.SmallHit1, playerSFXClips[0]);
+        PlayerAudioDict.Add(PlayerClipNames.SmallHit2, playerSFXClips[1]);
+        PlayerAudioDict.Add(PlayerClipNames.MediumHit1, playerSFXClips[2]);
+        PlayerAudioDict.Add(PlayerClipNames.MediumHit2, playerSFXClips[3]);
+        PlayerAudioDict.Add(PlayerClipNames.BigHit1, playerSFXClips[4]);
+        PlayerAudioDict.Add(PlayerClipNames.BigHit2, playerSFXClips[5]);
+        PlayerAudioDict.Add(PlayerClipNames.Swoosh, playerSFXClips[6]);
+        PlayerAudioDict.Add(PlayerClipNames.Takt, playerSFXClips[7]);
+        PlayerAudioDict.Add(PlayerClipNames.CounterShock, playerSFXClips[8]);
+        PlayerAudioDict.Add(PlayerClipNames.Run, playerSFXClips[9]);
+        PlayerAudioDict.Add(PlayerClipNames.Walk, playerSFXClips[10]);
+        PlayerAudioDict.Add(PlayerClipNames.RoomStart, playerSFXClips[11]);
+        PlayerAudioDict.Add(PlayerClipNames.RoomLoop, playerSFXClips[12]);
+        PlayerAudioDict.Add(PlayerClipNames.Shambles, playerSFXClips[13]);
+        PlayerAudioDict.Add(PlayerClipNames.RadioKnife, playerSFXClips[14]);
+        PlayerAudioDict.Add(PlayerClipNames.GammaKnife, playerSFXClips[15]);
+        PlayerAudioDict.Add(PlayerClipNames.InjectionShot, playerSFXClips[16]);
         //add enemy clips to dictionary
-        EnemyAudioDict.Add(EnemyClipNames.BigHit1, enemySFXClips[0]);
-        EnemyAudioDict.Add(EnemyClipNames.BigHit2, enemySFXClips[1]);
-        EnemyAudioDict.Add(EnemyClipNames.MediumHit2, enemySFXClips[2]);
-        EnemyAudioDict.Add(EnemyClipNames.MediumHit1, enemySFXClips[3]);
-        EnemyAudioDict.Add(EnemyClipNames.SmallHit2, enemySFXClips[4]);
-        EnemyAudioDict.Add(EnemyClipNames.SmallHit1, enemySFXClips[5]);
+        EnemyAudioDict.Add(EnemyClipNames.SmallClash1, enemySFXClips[0]);
+        EnemyAudioDict.Add(EnemyClipNames.SmallClash2, enemySFXClips[1]);
+        EnemyAudioDict.Add(EnemyClipNames.SmallClash3, enemySFXClips[2]);
+        EnemyAudioDict.Add(EnemyClipNames.SmallClash4, enemySFXClips[3]);
+        EnemyAudioDict.Add(EnemyClipNames.MediumClash1, enemySFXClips[4]);
+        EnemyAudioDict.Add(EnemyClipNames.MediumClash2, enemySFXClips[5]);
+        EnemyAudioDict.Add(EnemyClipNames.BigClash, enemySFXClips[6]);
+        EnemyAudioDict.Add(EnemyClipNames.Shoot, enemySFXClips[7]);
+        EnemyAudioDict.Add(EnemyClipNames.Explosion2, enemySFXClips[8]);
         //EnemyAudioDict.Add(EnemyClipNames.KO, enemySFXClips[1]);
         //EnemyAudioDict.Add(EnemyClipNames.Shoot, enemySFXClips[2]);
         //EnemyAudioDict.Add(EnemyClipNames.Stun, enemySFXClips[3]);
@@ -88,17 +92,28 @@ public class AudioMan : MonoBehaviour
     {
         audioMixer.SetFloat("SFXVolume", Mathf.Log10(sFXValue) * 20);
         PlayerPrefs.SetFloat("EffectsVolume", sFXValue);
+        exposedVolume = sFXValue;
         foreach (AudioSource source in playerSFXSources)
-        {
-            source.volume = sFXValue;
-        }
-        foreach (AudioSource source in enemySFXSources)
         {
             source.volume = sFXValue;
         }
         foreach (AudioSource source in otherSFXSources)
         {
             source.volume = sFXValue;
+        }
+        if(FindObjectOfType<Enemy>() != null)
+        {
+            foreach (Enemy item in FindObjectsOfType<Enemy>())
+            {
+                item.ChangeVolume();
+            }
+        }
+        if(FindObjectOfType<Projectile>() != null)
+        {
+            foreach (Projectile item in FindObjectsOfType<Projectile>())
+            {
+                item.ChangeVolume();
+            }
         }
     }
     //Stopping and starting clips
@@ -109,21 +124,6 @@ public class AudioMan : MonoBehaviour
     public void StopMusic()
     {
         musicManager.Stop();
-    }
-    public void StopAllSFX()
-    {
-        foreach (AudioSource source in playerSFXSources)
-        {
-            source.Stop();
-        }
-        foreach (AudioSource source in enemySFXSources)
-        {
-            source.Stop();
-        }
-        foreach (AudioSource source in otherSFXSources)
-        {
-            source.Stop();
-        }
     }
     public void Stop1RePlayerSFX(int index)
     {
@@ -136,13 +136,16 @@ public class AudioMan : MonoBehaviour
         {
             source.Pause();
         }
-        foreach (AudioSource source in enemySFXSources)
-        {
-            source.Pause();
-        }
         foreach (AudioSource source in otherSFXSources)
         {
             source.Pause();
+        }
+        if (FindObjectOfType<Enemy>() != null)
+        {
+            foreach (Enemy item in FindObjectsOfType<Enemy>())
+            {
+                item.PauseAllSFX();
+            }
         }
     }
     //playing clips
@@ -193,9 +196,9 @@ public class AudioMan : MonoBehaviour
             }
         }
     }
-    public void PlayEnemyClip(EnemyClipNames clipName)
+    public void PlayEnemyClip(EnemyClipNames clipName, AudioSource[] audioSources)
     {
-        foreach (AudioSource source in enemySFXSources)
+        foreach (AudioSource source in audioSources)
         {
             if (source.isPlaying == false)
             {

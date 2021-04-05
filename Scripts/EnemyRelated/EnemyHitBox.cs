@@ -34,22 +34,22 @@ public class EnemyHitBox : MonoBehaviour
             switch(soundPicker)
             {
                 case 0:
-                    audioMan.PlayEnemyClip(AudioMan.EnemyClipNames.BigHit1);
+                    audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.BigHit1);
                     break;
                 case 1:
-                    audioMan.PlayEnemyClip(AudioMan.EnemyClipNames.BigHit2);
+                    audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.BigHit2);
                     break;
                 case 2:
-                    audioMan.PlayEnemyClip(AudioMan.EnemyClipNames.MediumHit1);
+                    audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.MediumHit1);
                     break;
                 case 3:
-                    audioMan.PlayEnemyClip(AudioMan.EnemyClipNames.MediumHit2);
+                    audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.MediumHit2);
                     break;
                 case 4:
-                    audioMan.PlayEnemyClip(AudioMan.EnemyClipNames.SmallHit1);
+                    audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.SmallHit1);
                     break;
                 case 5:
-                    audioMan.PlayEnemyClip(AudioMan.EnemyClipNames.SmallHit2);
+                    audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.SmallHit2);
                     break;
             }
         }

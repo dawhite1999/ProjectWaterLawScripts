@@ -52,6 +52,7 @@ public class ControllerEnemy : Enemy
             var projectileObj = Instantiate(projectile, projectileSpawn.transform.position, projectileSpawn.transform.rotation);
             projectileObj.GetComponent<Rigidbody>().velocity = (projectilePoint.transform.forward).normalized * projectileSpeed;
             projectileObj.GetComponent<Projectile>().damage = strength;
+            audioMan.PlayEnemyClip(AudioMan.EnemyClipNames.Shoot, enemySFXSources);
         }
     }
     protected override IEnumerator Defeat()

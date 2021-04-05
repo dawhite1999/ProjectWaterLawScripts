@@ -21,7 +21,7 @@ public class AttackHitBox : MonoBehaviour
                 other.GetComponent<Enemy>().defense = 1;
                 other.GetComponent<Enemy>().RecieveDamage(player.strength + player.gammaBonus);
                 other.GetComponent<Enemy>().defense = oriEnemyDefense;
-                player.audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.BigClash);
+                player.audioMan.PlayEnemyClip(AudioMan.EnemyClipNames.BigClash, other.GetComponent<Enemy>().enemySFXSources);
                 return;
             }
             if(counterOn == true)
@@ -30,10 +30,10 @@ public class AttackHitBox : MonoBehaviour
                 switch(soundPicker)
                 {
                     case 0:
-                        player.audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.MediumClash1);
+                        player.audioMan.PlayEnemyClip(AudioMan.EnemyClipNames.MediumClash1, other.GetComponent<Enemy>().enemySFXSources);
                         break;
                     case 1:
-                        player.audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.MediumClash2);
+                        player.audioMan.PlayEnemyClip(AudioMan.EnemyClipNames.MediumClash2, other.GetComponent<Enemy>().enemySFXSources);
                         break;
                 }
                 other.GetComponent<Enemy>().RecieveDamage(player.strength + player.counterDamage);
@@ -43,16 +43,16 @@ public class AttackHitBox : MonoBehaviour
             switch(soundPicker)
             {
                 case 0:
-                    player.audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.SmallClash1);
+                    player.audioMan.PlayEnemyClip(AudioMan.EnemyClipNames.SmallClash1, other.GetComponent<Enemy>().enemySFXSources);
                     break;
                 case 1:
-                    player.audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.SmallClash2);
+                    player.audioMan.PlayEnemyClip(AudioMan.EnemyClipNames.SmallClash2, other.GetComponent<Enemy>().enemySFXSources);
                     break;
                 case 2:
-                    player.audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.SmallClash3);
+                    player.audioMan.PlayEnemyClip(AudioMan.EnemyClipNames.SmallClash3, other.GetComponent<Enemy>().enemySFXSources);
                     break;
                 case 3:
-                    player.audioMan.PlayPlayerClip(AudioMan.PlayerClipNames.SmallClash4);
+                    player.audioMan.PlayEnemyClip(AudioMan.EnemyClipNames.SmallClash4, other.GetComponent<Enemy>().enemySFXSources);
                     break;
             }
             other.GetComponent<Enemy>().RecieveDamage(player.strength);

@@ -27,12 +27,13 @@ public class Enemy : MonoBehaviour
     public GameObject explodeParticles;
     public GameObject sparkParticles;
     public Transform damagePopupPrefab;
-    AudioMan audioMan;
-    public Animator animator;
+    protected AudioMan audioMan;
+    protected Animator animator;
     Player player;
     protected EnemyNav enemyNav;
     protected EnemyCounter enemyCounter;
     protected NavMeshAgent navMeshAgent;
+    public AudioSource[] enemySFXSources;
 
     //called to set a new state
     public void SetState(EnemyStates newState)
@@ -79,6 +80,7 @@ public class Enemy : MonoBehaviour
         if (FindObjectOfType<EnemyCounter>() != null)
             enemyCounter = FindObjectOfType<EnemyCounter>();
         SetState(EnemyStates.Pursuit);
+        ChangeVolume();
     }
     //make decision is overwritten in derivitive classes
     protected virtual void Update(){ MakeDecision(); }
@@ -177,5 +179,22 @@ public class Enemy : MonoBehaviour
         if (enemyCounter != null)
             enemyCounter.RemoveEnemy(GetComponent<Enemy>());
             Destroy(gameObject);
+    }
+
+    public void ChangeVolume()
+    {
+        if (audioMan == null)
+            audioMan = FindObjectOfType<AudioMan>();
+        foreach (AudioSource source in enemySFXSources)
+        {
+            source.volume = audioMan.GetEXVolume();
+        }
+    }
+    public void PauseAllSFX()
+    {
+        foreach (AudioSource source in enemySFXSources)
+        {
+            source.Pause();
+        }
     }
 }

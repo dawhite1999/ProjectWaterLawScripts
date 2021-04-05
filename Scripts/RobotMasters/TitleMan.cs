@@ -33,16 +33,16 @@ public class TitleMan : MonoBehaviour, ILanguage
     {
         //find stuff
         audioMan = FindObjectOfType<AudioMan>();
-        audioMan.InitializeAudio();
         sceneMan = FindObjectOfType<SceneMan>();
         //FindObjectOfType<AudioMan>().PlayBGM(AudioMan.BGMClipNames.Title);
         languageMan = FindObjectOfType<LanguageMan>();
         tempLanguage = StaticMan.isEnglish;
-        SetUiText();
-        audioMan.InitiateVolume(PlayerPrefs.GetFloat("MusicVolume", 1), "BGMVolume", musicSlider);
-        audioMan.InitiateVolume(PlayerPrefs.GetFloat("EffectsVolume", 1), "SFXVolume", sfxSlider);
+        //this is to duct tape fix some weird bug
+        FindObjectOfType<PauseMan>().GetAudioStuff();
+        FindObjectOfType<PauseMan>().gameObject.SetActive(false);
         StaticMan.mouseSens = PlayerPrefs.GetFloat("MouseSensitivity", 100);
         mouseSlider.value = StaticMan.mouseSens;
+        SetUiText();
         //turn stuff off
         optionsScreen.SetActive(false);
         confirmLeave.SetActive(false);

@@ -18,11 +18,11 @@ public class PauseMan : MonoBehaviour, ILanguage
     public GameObject[] buttons;
     private void Start()
     {
-        GetComponentInChildren<AudioMan>().InitializeAudio();
+        if (FindObjectOfType<TitleMan>() == true)
+            return;
+        GetAudioStuff();
         optionsScreen.SetActive(false);
         languageMan = FindObjectOfType<LanguageMan>();
-        GetComponentInChildren<AudioMan>().InitiateVolume(PlayerPrefs.GetFloat("MusicVolume", 1), "BGMVolume", musicSlider);
-        GetComponentInChildren<AudioMan>().InitiateVolume(PlayerPrefs.GetFloat("EffectsVolume", 1), "SFXVolume", sfxSlider);
         if(FindObjectOfType<CameraMovement>() != null)
             FindObjectOfType<CameraMovement>().InitializeMouse();
         //setting texts
@@ -52,6 +52,13 @@ public class PauseMan : MonoBehaviour, ILanguage
             pauseMenu.SetActive(false);
         else
             optionsScreen.SetActive(false);
+    }
+    //This is here because there is a weird error IDK how to fix. It's called by title man at start.
+    public void GetAudioStuff()
+    {
+        GetComponentInChildren<AudioMan>().InitializeAudio();
+        GetComponentInChildren<AudioMan>().InitiateVolume(PlayerPrefs.GetFloat("MusicVolume", 1), "BGMVolume", musicSlider);
+        GetComponentInChildren<AudioMan>().InitiateVolume(PlayerPrefs.GetFloat("EffectsVolume", 1), "SFXVolume", sfxSlider);
     }
     public void Pause()
     {

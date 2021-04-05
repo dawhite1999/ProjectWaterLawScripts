@@ -226,12 +226,14 @@ public class Player : MonoBehaviour
             FindObjectOfType<SaveStation>().openText.gameObject.SetActive(false);
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+            disableInput = true;
         }
         else
         {
             saveScreen.SetActive(false);
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
+            disableInput = false;
         }
     }
     //called when you right click inside a next stage station
